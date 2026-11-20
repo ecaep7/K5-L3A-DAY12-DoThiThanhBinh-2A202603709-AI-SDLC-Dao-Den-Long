@@ -94,7 +94,8 @@ export function createWorld(seed, scenario = null, night = 1) {
   if ('pulse_cd_ticks' in sp) player.pulseCd = sp.pulse_cd_ticks;
   if ('charm_ticks' in sp) player.charm = sp.charm_ticks;
   if ('successful_lights' in sp) player.successfulLights = sp.successful_lights;
-  player.grounded = player.pos[1] === 0 && Math.hypot(player.pos[0], player.pos[2]) <= map.islandRadius;
+  player.launch = null;
+  player.grounded = player.pos[1] === map.support(player.pos[0], player.pos[2], player.pos[1], 0);
 
   const lanterns = makeLanterns(map);
   for (const u of sc.lanterns ?? []) {
@@ -127,6 +128,8 @@ export function createWorld(seed, scenario = null, night = 1) {
     shades: [],
     randomShades: sc.random_shades !== false,
     randomMotes: sc.random_motes !== false,
+    windEnabled: sc.wind_enabled !== false,
+    wind: { active: false, dirDeg: 0 },
   };
   world.endTick = Math.round(world.durationS * WORLD.tick_hz);
 

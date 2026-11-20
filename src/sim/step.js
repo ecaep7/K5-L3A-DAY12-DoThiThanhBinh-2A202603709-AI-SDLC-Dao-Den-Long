@@ -20,7 +20,7 @@ function pushOutOfSafeZones(world, pos) {
       pos[2] = l.pos[2] + dz * r;
       moved = true;
     }
-    clampToDisc(pos, world.map.islandRadius);
+    world.map.clampShade(pos);
     if (!moved) break;
   }
 }
@@ -50,6 +50,18 @@ function weakLantern(world, pos) {
     if (d < bestD) { best = l; bestD = d; }
   }
   return best;
+}
+
+// Gió mạnh (chỉ bản đồ có `wind`): báo trước `warn` tick, thổi `duration` tick, mỗi `every` tick; hướng chọn bằng PRNG của world lúc báo trước.
+function updateWind(world, sim, emit) {
+  const w = world.map.wind;
+  if (!w || !world.windEnabled) return;
+  if ((sim + w.warn) % w.every === 0) {
+    world.wind.dirDeg = world.rng() * 360;
+    emit('wind_warning', { dir_deg: Math.round(world.wind.dirDeg * 1000) / 1000 });
+  }
+  if (sim % w.every === 0) { world.wind.active = true; emit('wind_start', {}); }
+  if (world.wind.active && sim % w.every === w.duration) { world.wind.active = false; emit('wind_end', {}); }
 }
 
 // Một bước gameplay (1/60 s). input: trạng thái GIỮ { move:[x,z], cam_yaw_deg, jump, interact, pulse, dash, pause }.
@@ -85,6 +97,7 @@ export function step(world, input) {
   if (p.dashCd > 0) p.dashCd -= 1;
   if (p.invuln > 0) p.invuln -= 1;
   if (p.charm > 0) p.charm -= 1;
+  updateWind(world, sim, emit);
   let respawn = false;
   if (p.fallWait > 0) {
     p.fallWait -= 1;
@@ -133,6 +146,7 @@ export function step(world, input) {
     p.vel = [0, 0, 0];
     p.grounded = true;
     p.dashLeft = 0;
+    p.launch = null;
     p.invuln = WORLD.respawn_invuln_ticks;
   }
   if (!falling) {
@@ -150,19 +164,42 @@ export function step(world, input) {
       p.dashDir = [...p.facing];
       emit('dash', {});
     }
+    const map = world.map;
     let vx;
     let vz;
     if (p.dashLeft > 0) {
       vx = p.dashDir[0] * TUNING.dash_speed;
       vz = p.dashDir[1] * TUNING.dash_speed;
+    } else if (p.launch) {
+      [vx, vz] = p.launch; // bục nhảy: vận tốc ngang giữ tới khi chạm đất
     } else {
       vx = wx * TUNING.player_speed;
       vz = wz * TUNING.player_speed;
     }
+    if (world.wind.active) {
+      vx += map.wind.push * Math.cos((world.wind.dirDeg * Math.PI) / 180);
+      vz += map.wind.push * Math.sin((world.wind.dirDeg * Math.PI) / 180);
+    }
+    const ox = p.pos[0];
+    const oz = p.pos[2];
     p.pos[0] += vx * DT;
     p.pos[2] += vz * DT;
-    const onIsland = Math.hypot(p.pos[0], p.pos[2]) <= world.map.islandRadius;
-    p.grounded = p.pos[1] === 0 && p.vy === 0 && onIsland;
+    if (map.blocked && map.blocked(p.pos[0], p.pos[2], p.pos[1])) { p.pos[0] = ox; p.pos[2] = oz; }
+    const h = map.support(p.pos[0], p.pos[2], p.pos[1], WORLD.step_up);
+    p.grounded = p.vy === 0 && Number.isFinite(h)
+      && (p.pos[1] === h || (p.grounded && Math.abs(p.pos[1] - h) <= WORLD.step_up));
+    if (p.grounded) { p.pos[1] = h; p.launch = null; }
+    if (p.vy <= 0) {
+      for (const pad of map.pads) {
+        if (within(p.pos, pad.pos, pad.r) && Math.abs(p.pos[1] - pad.pos[1]) <= 0.5) {
+          p.vy = pad.vy;
+          p.grounded = false;
+          p.launch = [pad.dir[0] * pad.vh, pad.dir[1] * pad.vh];
+          emit('jump_pad', {});
+          break;
+        }
+      }
+    }
     if (p.dashLeft > 0) {
       p.dashLeft -= 1; // lướt giữ nguyên độ cao
       p.vy = 0;
@@ -173,7 +210,8 @@ export function step(world, input) {
         // tích phân chính xác cho gia tốc hằng: y += v·dt − ½g·dt²
         p.pos[1] += p.vy * DT - 0.5 * WORLD.gravity * DT * DT;
         p.vy -= WORLD.gravity * DT;
-        if (prevY >= 0 && p.pos[1] <= 0 && onIsland) { p.pos[1] = 0; p.vy = 0; p.grounded = true; }
+        const hl = map.support(p.pos[0], p.pos[2], prevY, 0);
+        if (Number.isFinite(hl) && p.pos[1] <= hl) { p.pos[1] = hl; p.vy = 0; p.grounded = true; p.launch = null; }
       }
     }
     p.vel = [vx, p.vy, vz];
@@ -185,6 +223,7 @@ export function step(world, input) {
       p.vy = 0;
       p.vel = [0, 0, 0];
       p.dashLeft = 0;
+      p.launch = null;
       p.grounded = false;
       emit('player_hit', { by: 'fall', flames: p.flames, dropped: 0, lost });
     }
@@ -256,7 +295,7 @@ export function step(world, input) {
       s.pos[0] = l.pos[0] + dx * nd;
       s.pos[2] = l.pos[2] + dz * nd;
     }
-    clampToDisc(s.pos, world.map.islandRadius);
+    world.map.clampShade(s.pos);
   }
 
   // (7) Tỏa Sáng: tâm = chân + 0.8 m; mục tiêu chốt ngay tick này (khoảng cách 3D ≤ bán kính)
@@ -313,7 +352,7 @@ export function step(world, input) {
       if (s.state === 'chase' && d > WORLD.shade_giveup) s.state = 'wander';
       else if (s.state === 'wander' && d <= WORLD.shade_detect) s.state = 'chase';
       if (s.state === 'chase') {
-        stepShadeTo(s, p.pos, TUNING.shade_speed);
+        stepShadeTo(s, p.pos, world.map.shadeSpeed);
       } else if (weakLantern(world, s.pos)) {
         // wander: đi tới đèn sáng yếu (fuel < 30) gần nhất; tới ≤ 2 m thì chuyển drain
         const l = weakLantern(world, s.pos);
@@ -326,16 +365,15 @@ export function step(world, input) {
         }
       } else {
         if (!s.wanderTo || s.wanderLeft <= 0 || dist2D(s.pos, s.wanderTo) < 0.5) {
-          const a = world.rng() * 2 * Math.PI;
-          const r = Math.sqrt(world.rng()) * (world.map.islandRadius - 2);
-          s.wanderTo = [r * Math.cos(a), 0, r * Math.sin(a)];
+          s.wanderTo = world.map.wanderPoint(world.rng);
           s.wanderLeft = WORLD.shade_wander_retarget_ticks;
         }
         s.wanderLeft -= 1;
         stepShadeTo(s, s.wanderTo, WORLD.shade_wander_speed);
       }
     }
-    clampToDisc(s.pos, world.map.islandRadius);
+    world.map.clampShade(s.pos);
+    if (world.map.shadeY) s.pos[1] = world.map.shadeY(s.pos[0], s.pos[2]);
     if (!wasInside) pushOutOfSafeZones(world, s.pos);
   }
 
@@ -365,15 +403,15 @@ export function step(world, input) {
 
   // (10) sinh theo lịch (thực thể mới chỉ tương tác được từ tick sau)
   if (world.randomMotes && sim % WORLD.mote_every_ticks === 0) spawnRandomMote(world);
-  if (world.randomShades && sim >= WORLD.shade_spawn_first_tick
-      && (sim - WORLD.shade_spawn_first_tick) % WORLD.shade_spawn_every_ticks === 0) {
-    const n = sim === WORLD.shade_spawn_first_tick ? WORLD.shade_spawn_first_count : 1;
-    for (let i = 0; i < n && world.shades.length < WORLD.shade_max; i++) {
+  const sc = world.map.shade;
+  if (world.randomShades && sim >= sc.first && (sim - sc.first) % sc.every === 0) {
+    const n = sim === sc.first ? sc.firstCount : 1;
+    for (let i = 0; i < n && world.shades.length < sc.max; i++) {
       const pt = pickShadePoint(world);
       if (!pt) break; // hết điểm hợp lệ: bỏ lượt
       const id = nextShadeId(world);
       world.shades.push({
-        id, pos: [pt[0], WORLD.shade_y, pt[2]], state: 'spawning', left: 1,
+        id, pos: [pt[0], world.map.shadeY ? world.map.shadeY(pt[0], pt[2]) : WORLD.shade_y, pt[2]], state: 'spawning', left: 1,
         push: null, recoilDir: null, wanderTo: null, wanderLeft: 0,
         target: null, drainTicks: 0,
       });

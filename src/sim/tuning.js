@@ -88,6 +88,7 @@ export const WORLD = Object.freeze({
   pickup_height: 1.5,
   safe_push_ticks: 30,
   capacity_step: 2,
+  step_up: 0.2, // bậc cao tối đa đi lên được khi đang đứng đất (dốc)
   drain_range: 2, // Bóng Mực cách đèn yếu ≤ 2 m (XZ) thì chuyển sang drain
   drain_chase_range: 6, // Mây vào trong 6 m thì drain → chase
   drain_event_ticks: 60,

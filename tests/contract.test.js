@@ -167,8 +167,11 @@ describe('mã thoát', () => {
     assert.equal(run({ scenario: { shades: [{ pos: [1, 2] }] } }).code, 2);
     assert.equal(run({ scenario: { lanterns: [{ id: 'L9' }] } }).code, 2);
   });
-  test('--night: 0 và 4 bị từ chối (mã 1); 2, 3 chưa làm ở K1 nên mã 1 kèm thông báo', () => {
-    for (const n of ['0', '4', '2', '3']) {
+  test('--night: 0 và 4 bị từ chối (mã 1); 2, 3 chạy được (Phase 4 R5)', () => {
+    for (const n of ['2', '3']) {
+      assert.equal(runCli(['--seed', '1', '--night', n, '--ticks', '1', '--out', writeTmp('o', '')]).code, 0, `night ${n}`);
+    }
+    for (const n of ['0', '4']) {
       const r = runCli(['--seed', '1', '--night', n, '--ticks', '1', '--out', writeTmp('o', '')]);
       assert.equal(r.code, 1, `night ${n}`);
       assert.ok(r.stderr.length > 0);

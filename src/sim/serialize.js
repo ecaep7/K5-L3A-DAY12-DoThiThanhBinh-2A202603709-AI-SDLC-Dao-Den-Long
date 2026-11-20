@@ -19,7 +19,7 @@ export function snapshotLine(world) {
     night: world.night,
     time_left_s: r3(timeLeft(world)),
     score: world.score,
-    wind: { active: false, dir_deg: 0 },
+    wind: { active: world.wind.active, dir_deg: r3(world.wind.dirDeg) },
     player: {
       pos: pos3(p.pos), vel: pos3(p.vel), grounded: p.grounded, invuln: p.invuln > 0,
       dash_cd_s: secs(p.dashCd), pulse_cd_s: secs(p.pulseCd), charm_s: secs(p.charm),
