@@ -7,7 +7,8 @@ Không đổi luật, số liệu hay output headless (tất cả test Phase 1�
 - Mới: `src/soak.js` (soak test, `soak.json`), `bench/bench.mjs` + `web/bench.html` + `web/bench.js` (benchmark Playwright 1280×720, `bench.json`), `tests/soak.test.js`, `tests/bench.test.js`.
 - `web/render.js`: `sync` nhận thêm tham số camera tùy chọn (chỉ bench dùng); `web/vite.config.js` build thêm trang `bench.html`.
 - Đóng gói: README đủ mục, CREDITS.md, LICENSE (MIT), bản web tĩnh `.zip` cho Release.
-- Chưa làm (xem README mục "Chưa đạt"): Đêm 2/3, bảng xếp hạng, accessibility, Gió Lạc/Bùa Gió.
+- R5: Đêm 2/3 trong sim và headless (`src/sim/maps.js`: mặt đứng nhiều tầng, dốc, cầu, bục nhảy, vách, gió mạnh; `step.js` tổng quát hóa di chuyển, Đêm 1 giữ nguyên từng byte). Sự kiện mới `jump_pad`, `wind_warning`, `wind_start`, `wind_end`; snapshot `wind` thật ở Đêm 3. Test `contract` · `--night: 0 và 4 …` đổi kỳ vọng: `--night 2/3` nay chạy mã 0 (trước đây mã 1 vì chưa có). Test mới: `tests/nights.test.js`.
+- Chưa làm (xem README mục "Chưa đạt"): giao diện web cho Đêm 2/3, bảng xếp hạng, accessibility, Gió Lạc/Bùa Gió.
 
 ## Phase 3 — Ticket-03 "Đèn cạn dầu" (Contract v1.2)
 

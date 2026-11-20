@@ -45,7 +45,7 @@ npm test             # node:test, không thêm thư viện test
 ```
 node src/headless.js --seed 1 --night 1 --ticks 600 --out out/run.jsonl [--scenario f.json] [--inputs f.json] [--snapshot-every 10]
 ```
-Mã thoát: 0 ok · 2 inputs/scenario sai định dạng · 1 lỗi khác. Cùng seed + scenario + inputs cho output giống hệt từng byte. Mới có Đêm 1 (`--night 2|3` báo lỗi).
+Mã thoát: 0 ok · 2 inputs/scenario sai định dạng · 1 lỗi khác. Cùng seed + scenario + inputs cho output giống hệt từng byte. `--night` nhận 1, 2, 3.
 
 ## Bench (Contract v1.3)
 ```
@@ -57,7 +57,7 @@ Mở cửa sổ Chrome (hoặc Chromium của Playwright) 1280×720 qua Playwrig
 ```
 node src/soak.js --seed 7 --nights 10 --out soak.json
 ```
-Chạy 10 Đêm liên tiếp trong một tiến trình (Đêm i dùng seed 7+i, input ngẫu nhiên theo seed). Ép GC trước khi đo RSS. Kết quả đã chạy thật: `soak.json`.
+Chạy 10 Đêm liên tiếp trong một tiến trình, xoay vòng Đêm 1 → 2 → 3 (Đêm i dùng seed 7+i, input ngẫu nhiên theo seed). Ép GC trước khi đo RSS. Kết quả đã chạy thật: `soak.json` (0 crash; xem "Chưa đạt" về ngưỡng bộ nhớ).
 
 ## Cấu trúc
 - `src/sim/`: logic thuần, tất định (PRNG có seed, không Three.js, không `Math.random`/`Date`).
@@ -67,7 +67,8 @@ Chạy 10 Đêm liên tiếp trong một tiến trình (Đêm i dùng seed 7+i, 
 
 ## Chưa đạt
 Phần chưa làm, nói thẳng:
-- **Đêm 2 và Đêm 3**: chưa có. Vì vậy soak chỉ chạy bản đồ Đêm 1 (chưa xoay vòng 1 → 2 → 3) và không thể có thắng "Đêm 3 / màn Bình Minh".
+- **Đêm 2 và Đêm 3**: đã có trong sim và headless (bản đồ, cầu, tầng, dốc, bục nhảy, tháp chuông, gió mạnh, Bóng Mực 4.5 m/s Đêm 3), nhưng **chưa có trong giao diện web** (web chỉ chơi Đêm 1), chưa có màn chuyển Đêm/Bình Minh, chưa có Gió Lạc và Bùa Gió. Làm trong 30 phút nên chỉ có test scenario (`tests/nights.test.js`); tầng/vách của Bóng Mực được đơn giản hóa (Bóng Mực không bị vách chặn, chỉ bám độ cao mặt đất); điểm xuất phát Đêm 2/3 không có trong ticket (tự chọn: (0,0,0) và (0,0,-20)); sự kiện `jump_pad`, `wind_warning/start/end` do tôi đặt tên.
+- **Soak không đạt ngưỡng bộ nhớ**: `soak.json` hiện có `mem_end_mb` 44.9 > 1.2 × `mem_start_mb` 36.1 (tỉ lệ 1.24, chạy lại 5 lần đều 1.23–1.25). `mem_start_mb` đo ngay sau khi dựng Đêm đầu, trước khi chạy; phần tăng là nóng máy JIT/heap (đã kiểm: heap sau GC phẳng khi chạy 200 Đêm) nhưng tôi chưa sửa cách đo hay giảm RSS, nên ghi là chưa đạt.
 - **Gió Lạc, Bùa Gió** (Ticket-02 K3): chưa làm.
 - **Bảng xếp hạng cục bộ** (mục 3), lệnh `--export-leaderboard`: chưa làm.
 - **Dễ tiếp cận** (mục 4): đổi phím, phụ đề/mũi tên chỉ báo, giảm chuyển động, chữ lớn ×1.25: chưa làm. Cũng chưa có phím lướt/tạm dừng, thanh dầu, nhấp nháy 1 Hz, chế độ mù màu.

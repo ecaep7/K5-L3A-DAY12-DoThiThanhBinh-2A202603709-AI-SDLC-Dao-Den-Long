@@ -1,1 +1,1 @@
-{"nights":10,"crashes":0,"results":["lost","lost","lost","lost","lost","lost","lost","lost","lost","lost"],"mem_start_mb":46.9,"mem_end_mb":51.6,"duration_s":0.1,"nights_rotation":[1],"note":"Chưa đạt phần xoay vòng: mới có Đêm 1 (Đêm 2/3 chưa làm), nên mọi Đêm chạy bản đồ Đêm 1."}
+{"nights":10,"crashes":0,"results":["lost","lost","lost","lost","lost","lost","lost","lost","lost","lost"],"mem_start_mb":36.1,"mem_end_mb":44.9,"duration_s":0.1,"nights_rotation":[1,2,3],"note":"Xoay vòng đủ Đêm 1 → 2 → 3."}

@@ -42,6 +42,7 @@
 
 ## Phạm vi Phase 4 (Ticket-04, docs/requirements/phase4-ticket-04.md)
 - Đã làm: soak (`node src/soak.js --seed 7 --nights 10 --out soak.json`), bench (`node bench/bench.mjs --seed 42 --duration 30 --out bench.json`, Playwright, cần `npx playwright install chromium`), Contract v1.3, đóng gói (README, CHANGELOG, CREDITS, LICENSE, zip ở `release/`).
-- Chưa làm: Đêm 2/3 (nên soak chưa xoay vòng), bảng xếp hạng, accessibility, Gió Lạc/Bùa Gió. Xem docs/proof/traceability.md. Đừng làm khi chưa được yêu cầu.
+- Đêm 2/3: có trong sim + headless (`maps.js`, `tests/nights.test.js`), chưa có trong web. Soak xoay 1→2→3 nhưng `mem_end` 1.24× (chưa đạt ngưỡng 1.2×).
+- Chưa làm: bảng xếp hạng, accessibility, Gió Lạc/Bùa Gió. Xem docs/proof/traceability.md. Đừng làm khi chưa được yêu cầu.
 - `soak.json`, `bench.json` là output chạy thật, không sửa tay. Cảnh bench không đổi luật sim; `web/bench.js` tự cập nhật Bóng Mực wander (xấp xỉ luật gốc, không đuổi Mây).
 - KHÔNG tag `phase-4` và KHÔNG tạo GitHub Release: người dùng tự làm.

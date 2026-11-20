@@ -60,14 +60,15 @@ Bảng luật → test đầy đủ (15 mục, kèm tên nhóm test) ở `docs/n
 | Mục 1 Bench: `bench_cmd`, cảnh chuẩn, chỉ số đúng định nghĩa | Đạt (tự đo) | `bench/bench.mjs`, `web/bench.js`; `bench.json` chạy thật (avg 103.7, p1_low 30, p95 16.8 ms, load 1.7 s); công thức: `tests/bench.test.js` |
 | Bench: `peak_mem_mb` | Null có giải thích | bản web không đọc được RSS trình duyệt (trường `peak_mem_note`) |
 | Bench: tắt vsync | Một phần | cờ Chromium đã đặt; không kiểm chứng được GPU có tôn trọng không |
-| Mục 2 Soak: `soak_cmd`, crashes = 0, mem_end ≤ 1.2×mem_start | Đạt (số liệu) | `src/soak.js`, `soak.json` (46.9 → 51.6 MB, 0 crash); `tests/soak.test.js` |
-| Soak: xoay vòng Đêm 1→2→3 | **Chưa đạt** | Đêm 2/3 chưa làm; mọi Đêm chạy bản đồ Đêm 1 (ghi trong `soak.json`) |
+| Mục 2 Soak: `soak_cmd`, crashes = 0, mem_end ≤ 1.2×mem_start | Một phần | `src/soak.js`, `soak.json` (0 crash); `tests/soak.test.js` |
+| Soak: xoay vòng Đêm 1→2→3 | Đạt | `soak.json` có `nights_rotation [1,2,3]` |
+| Soak: mem_end ≤ 1.2×mem_start | **Chưa đạt** | `soak.json`: 36.1 → 44.9 MB (1.24); lặp lại 5 lần 1.23–1.25; heap phẳng (không rò), phần tăng là nóng máy |
 | Mục 3 Bảng xếp hạng, `--export-leaderboard` | **Chưa đạt** | không làm theo chỉ đạo Phase 4 (cũng cần màn Bình Minh Đêm 3) |
 | Mục 4 Accessibility | **Chưa đạt** | không làm theo chỉ đạo Phase 4 |
 | Gió Lạc, Bùa Gió | **Chưa đạt** | không làm theo chỉ đạo Phase 4 |
-| Đêm 2, Đêm 3 (R5) | **Chưa đạt** | hết thời gian; `maps.js` chỉ có Đêm 1 |
+| Đêm 2, Đêm 3 (R5): bản đồ, cầu, bục nhảy, tầng, dốc, tháp, gió mạnh, Bóng Mực 4.5 m/s | Một phần (sim + headless) | `src/sim/maps.js`, `tests/nights.test.js` (10 scenario test); giao diện web, chuyển Đêm, Gió Lạc, Bùa Gió: chưa làm |
 | Mục 5 README, CHANGELOG 4 phase, CREDITS, LICENSE, bản web tĩnh .zip | Đạt (zip ở `release/`, không commit) | `README.md`, `CHANGELOG.md`, `CREDITS.md`, `LICENSE` |
 | Mục 6 Contract v1.3 (`bench_cmd`, `soak_cmd`) | Đạt | `game.contract.json`; `tests/contract.test.js` |
 | Mục 7 Retro, video demo, GitHub Release v1.0.0, tag `phase-4` | **Chưa đạt** | tác giả tự làm |
 
-`npm test`: 174 test, 0 đỏ (Phase 3 có 168; thêm 3 soak, 3 bench).
+`npm test`: 184 test, 0 đỏ (Phase 3 có 168; thêm 3 soak, 3 bench, 10 Đêm 2/3).
