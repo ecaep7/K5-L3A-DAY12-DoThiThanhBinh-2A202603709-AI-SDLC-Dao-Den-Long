@@ -1,3 +1,4 @@
+**Video demo:** https://github.com/ecaep7/K5-L3A-DAY12-DoThiThanhBinh-2A202603709-AI-SDLC-Dao-Den-Long/releases/download/v1.0.0/demo.mp4
 # Đảo Đèn Lồng
 
 Game 3D trên trình duyệt: bạn là Mây, người giữ đèn nhỏ tuổi. Nhặt đom đóm, thắp và châm dầu cho các Đèn Lồng Lớn, xua Bóng Mực và giữ đủ đèn sáng đến khi trời sáng (Đêm 1: 240 s).
