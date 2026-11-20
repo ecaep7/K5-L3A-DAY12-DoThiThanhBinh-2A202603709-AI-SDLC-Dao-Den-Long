@@ -52,3 +52,14 @@ Cache hit 98% → tiết kiệm nhờ ngữ cảnh ổn định. Đổi sang Son
 Kết thúc Phase 2 (16:33): quota tuần 61% → 62%, session 14% → 26%.
 Chi phí ước tính: $2.15 (Sonnet $2.15, Haiku $0.0001), 26 request, 26 phút, +856 / −202 dòng code.
 Cache hit 95%. Kết quả: 127/127 test xanh, K0 (skill /verify + Stop hook) và K1 (số chuẩn + Contract v1.1 cho Đêm 1) xong; K2–K5 dời sang Phase 4.
+
+Kết thúc Phase 3 (16:48): quota tuần 62% → 64%, session 26% → 34%.
+Chi phí ước tính: $1.87 (Sonnet $1.87, Haiku $0.0001), 36 request, 13 phút, +483 dòng code.
+Cache hit 96%. Kết quả: 168/168 test xanh (trước đó 127); 14 test cũ đỏ vì luật mới → 12 sửa kỳ vọng, 2 thay mới, 1 xóa, lý do ghi trong CHANGELOG.md. Có ADR docs/adr/0001-lantern-fuel-and-win-rule.md.
+Tổng 3 phase: khoảng $6.0, quota tuần tăng 4% (60% → 64%).
+
+Kết thúc Phase 4 (17:28): quota tuần 64% → 66%, session 34% → 51%, chi phí ước tính $3.76 (Sonnet), 84 request, 40 phút, +1369 / −76 dòng code, cache hit 98%.
+Kết quả: 196/196 test xanh. Làm bù Đêm 2/3, Gió Lạc, Bùa Gió, giao diện 3 Đêm, HUD, bảng màu, tạm dừng, cài đặt, âm thanh.
+Soak: 0 crash nhưng bộ nhớ tăng 1.24× (ngưỡng 1.2×), nguyên nhân là JIT nóng máy (chạy --jitless chỉ tăng 4%) → giữ nguyên cách đo, ghi "chưa đạt".
+Lỗi nhỏ của AI ở Phase 4: bỏ R5 sớm vì hiểu chỉ dẫn "còn rất ít thời gian"; gộp 3 mục vào 1 commit dù được yêu cầu tách; tự thêm phím Q cho Lướt (có báo cáo).
+TỔNG CẢ LAB: khoảng $9.77, quota tuần tăng 6% (60% → 66%), 4 phiên, cache hit 95–98%.
