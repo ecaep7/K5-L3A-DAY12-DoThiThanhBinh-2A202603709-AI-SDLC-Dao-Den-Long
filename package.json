@@ -1,0 +1,20 @@
+{
+  "name": "dao-den-long",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Đảo Đèn Lồng – Phase 1",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.js\"",
+    "headless": "node src/headless.js",
+    "dev": "vite web",
+    "preview": "vite preview web",
+    "build:web": "vite build web"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  }
+}

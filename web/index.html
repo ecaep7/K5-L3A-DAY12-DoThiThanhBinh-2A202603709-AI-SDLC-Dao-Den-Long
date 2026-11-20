@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Đảo Đèn Lồng</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #120c22; font-family: system-ui, sans-serif; color: #ffe9c2; }
+    canvas { display: block; }
+    #hud { position: fixed; inset: 0; pointer-events: none; }
+    .bar { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .chip { background: rgba(30, 16, 50, .72); border: 1px solid rgba(255, 190, 90, .45); border-radius: 12px; padding: 6px 12px; font-size: 18px; }
+    .chip b { color: #ffb347; }
+    #toast { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); font-size: 20px; text-shadow: 0 2px 8px #000; opacity: 0; transition: opacity .3s; }
+    #hurt { position: absolute; inset: 0; background: radial-gradient(transparent 50%, rgba(80, 20, 140, .65)); opacity: 0; transition: opacity .4s; }
+    #help { position: absolute; bottom: 12px; left: 12px; font-size: 14px; opacity: .8; background: rgba(30,16,50,.6); padding: 6px 10px; border-radius: 10px; }
+    #end { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+           background: rgba(15, 8, 30, .78); pointer-events: auto; text-align: center; }
+    #end h1 { margin: 0; font-size: 44px; color: #ffb347; }
+    #end button { font-size: 20px; padding: 10px 26px; border-radius: 12px; border: 0; background: #ffb347; color: #2a1740; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <div id="hurt"></div>
+    <div class="bar">
+      <div class="chip">Lửa <b id="flames"></b></div>
+      <div class="chip">Đom đóm <b id="carried"></b></div>
+      <div class="chip">Đèn <b id="lit"></b></div>
+      <div class="chip">Trời sáng sau <b id="time"></b></div>
+      <div class="chip">Điểm <b id="score"></b></div>
+    </div>
+    <div id="toast"></div>
+    <div id="help">WASD / mũi tên: đi · Space: nhảy · E: nạp đèn · F: tỏa sáng · kéo chuột: xoay camera</div>
+    <div id="end">
+      <h1 id="end-title"></h1>
+      <div id="end-detail"></div>
+      <button id="restart">Chơi lại (Enter)</button>
+    </div>
+  </div>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
