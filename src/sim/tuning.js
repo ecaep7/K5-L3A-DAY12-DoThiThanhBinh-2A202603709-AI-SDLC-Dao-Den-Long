@@ -88,6 +88,20 @@ export const WORLD = Object.freeze({
   pickup_height: 1.5,
   safe_push_ticks: 30,
   capacity_step: 2,
+  drifter_idle_speed: 2,
+  drifter_speed: 7,
+  drifter_detect_carried: 5,
+  drifter_detect_range: 15,
+  drifter_steal_radius: 1.2,
+  drifter_steal_max: 3,
+  drifter_flee_ticks: 240,
+  drifter_drop_vanish_ticks: 120,
+  drifter_every_ticks: 1200,
+  drifter_max: 2,
+  drifter_y: 1.5,
+  charm_ticks: 600,
+  charm_speed: 7.2,
+  charm_respawn_ticks: 2700,
   step_up: 0.2, // bậc cao tối đa đi lên được khi đang đứng đất (dốc)
   drain_range: 2, // Bóng Mực cách đèn yếu ≤ 2 m (XZ) thì chuyển sang drain
   drain_chase_range: 6, // Mây vào trong 6 m thì drain → chase

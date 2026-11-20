@@ -62,13 +62,13 @@ Bảng luật → test đầy đủ (15 mục, kèm tên nhóm test) ở `docs/n
 | Bench: tắt vsync | Một phần | cờ Chromium đã đặt; không kiểm chứng được GPU có tôn trọng không |
 | Mục 2 Soak: `soak_cmd`, crashes = 0, mem_end ≤ 1.2×mem_start | Một phần | `src/soak.js`, `soak.json` (0 crash); `tests/soak.test.js` |
 | Soak: xoay vòng Đêm 1→2→3 | Đạt | `soak.json` có `nights_rotation [1,2,3]` |
-| Soak: mem_end ≤ 1.2×mem_start | **Chưa đạt** | `soak.json`: 36.1 → 44.9 MB (1.24); lặp lại 5 lần 1.23–1.25; heap phẳng (không rò), phần tăng là nóng máy |
+| Soak: mem_end ≤ 1.2×mem_start | **Chưa đạt** | `soak.json`: 36.1 → 44.9 MB (1.24); lặp lại 5 lần 1.23–1.25; heap phẳng (không rò), heap sau GC +0.4 MB/10 Đêm, `--jitless` chỉ +4%: phần tăng là bộ nhớ JIT nóng máy, không phải dữ liệu Đêm trước bị giữ lại; không đổi cách đo |
 | Mục 3 Bảng xếp hạng, `--export-leaderboard` | **Chưa đạt** | không làm theo chỉ đạo Phase 4 (cũng cần màn Bình Minh Đêm 3) |
 | Mục 4 Accessibility | **Chưa đạt** | không làm theo chỉ đạo Phase 4 |
-| Gió Lạc, Bùa Gió | **Chưa đạt** | không làm theo chỉ đạo Phase 4 |
-| Đêm 2, Đêm 3 (R5): bản đồ, cầu, bục nhảy, tầng, dốc, tháp, gió mạnh, Bóng Mực 4.5 m/s | Một phần (sim + headless) | `src/sim/maps.js`, `tests/nights.test.js` (10 scenario test); giao diện web, chuyển Đêm, Gió Lạc, Bùa Gió: chưa làm |
+| Đêm 2, Đêm 3 (R5): bản đồ, cầu, bục nhảy, tầng, dốc, tháp, gió mạnh, Bóng Mực 4.5 m/s | Một phần (sim + headless) | `src/sim/maps.js`, `tests/nights.test.js` (10 scenario test); giao diện web và chuyển Đêm: chưa làm |
+| Gió Lạc (idle/chase/flee, cướp, Tỏa Sáng, sinh lịch) và Bùa Gió (nhặt, 7.2 m/s, lướt không hồi chiêu, hồi sau 2700 tick) | Đạt trong sim + headless | `tests/drifters.test.js` (12 test); chưa có hình/HUD/âm thanh |
 | Mục 5 README, CHANGELOG 4 phase, CREDITS, LICENSE, bản web tĩnh .zip | Đạt (zip ở `release/`, không commit) | `README.md`, `CHANGELOG.md`, `CREDITS.md`, `LICENSE` |
 | Mục 6 Contract v1.3 (`bench_cmd`, `soak_cmd`) | Đạt | `game.contract.json`; `tests/contract.test.js` |
 | Mục 7 Retro, video demo, GitHub Release v1.0.0, tag `phase-4` | **Chưa đạt** | tác giả tự làm |
 
-`npm test`: 184 test, 0 đỏ (Phase 3 có 168; thêm 3 soak, 3 bench, 10 Đêm 2/3).
+`npm test`: 196 test, 0 đỏ (Phase 3 có 168; thêm 3 soak, 3 bench, 10 Đêm 2/3, 12 Gió Lạc/Bùa Gió).

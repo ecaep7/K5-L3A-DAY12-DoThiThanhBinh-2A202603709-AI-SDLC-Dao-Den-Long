@@ -98,6 +98,9 @@ export function step(world, input) {
   if (p.invuln > 0) p.invuln -= 1;
   if (p.charm > 0) p.charm -= 1;
   updateWind(world, sim, emit);
+  for (const c of world.charms) {
+    if (c.wait > 0) { c.wait -= 1; if (c.wait === 0) c.available = true; }
+  }
   let respawn = false;
   if (p.fallWait > 0) {
     p.fallWait -= 1;
@@ -158,8 +161,8 @@ export function step(world, input) {
     const wz = -mx * Math.sin(th) + mz * Math.cos(th);
     const wl = Math.hypot(wx, wz);
     if (wl > 1e-9) p.facing = [wx / wl, wz / wl];
-    if (edge.dash && p.dashCd <= 0 && p.dashLeft <= 0) {
-      p.dashCd = toTicks(TUNING.dash_cooldown_s);
+    if (edge.dash && (p.dashCd <= 0 || p.charm > 0) && p.dashLeft <= 0) {
+      p.dashCd = p.charm > 0 ? 0 : toTicks(TUNING.dash_cooldown_s); // Bùa Gió: lướt không hồi chiêu
       p.dashLeft = toTicks(TUNING.dash_duration_s);
       p.dashDir = [...p.facing];
       emit('dash', {});
@@ -173,8 +176,9 @@ export function step(world, input) {
     } else if (p.launch) {
       [vx, vz] = p.launch; // bục nhảy: vận tốc ngang giữ tới khi chạm đất
     } else {
-      vx = wx * TUNING.player_speed;
-      vz = wz * TUNING.player_speed;
+      const speed = p.charm > 0 ? WORLD.charm_speed : TUNING.player_speed;
+      vx = wx * speed;
+      vz = wz * speed;
     }
     if (world.wind.active) {
       vx += map.wind.push * Math.cos((world.wind.dirDeg * Math.PI) / 180);
@@ -242,6 +246,16 @@ export function step(world, input) {
       world.motes.splice(world.motes.indexOf(m), 1);
       p.carried += 1;
       emit('mote_picked', { carried: p.carried });
+    }
+  }
+
+  if (active) {
+    for (const c of world.charms) {
+      if (!c.available || !within(c.pos, p.pos, TUNING.pickup_radius) || Math.abs(p.pos[1] - c.pos[1]) > WORLD.pickup_height) continue;
+      c.available = false;
+      c.wait = WORLD.charm_respawn_ticks;
+      p.charm = WORLD.charm_ticks; // nhặt lại thì làm mới
+      emit('charm_picked', { charm_id: c.id, charm_ticks: p.charm });
     }
   }
 
@@ -315,6 +329,17 @@ export function step(world, input) {
       s.recoilDir = null;
       s.target = null;
     }
+    for (const d of world.drifters) {
+      if (Math.hypot(d.pos[0] - c[0], d.pos[1] - c[1], d.pos[2] - c[2]) > TUNING.pulse_radius + 1e-9) continue;
+      if (d.state === 'chase') { d.state = 'flee'; d.left = WORLD.drifter_flee_ticks; }
+      else if (d.state === 'flee' && d.stolen > 0) {
+        const y = Math.max(0, world.map.support(d.pos[0], d.pos[2], 100, 0));
+        for (let i = 0; i < d.stolen; i++) newMote(world, [d.pos[0], y, d.pos[2]], 'dropped', WORLD.mote_ttl_ticks);
+        emit('drifter_drop', { drifter_id: d.id, amount: d.stolen });
+        d.stolen = 0;
+        d.left = Math.min(d.left, WORLD.drifter_drop_vanish_ticks);
+      }
+    }
     emit('pulse', { stunned_ids: stunned });
   }
 
@@ -377,6 +402,42 @@ export function step(world, input) {
     if (!wasInside) pushOutOfSafeZones(world, s.pos);
   }
 
+  // (8b) Gió Lạc: idle (lượn chậm) → chase (mang ≥ 5 và cách ≤ 15 m) → flee (240 tick rồi biến mất)
+  for (const d of world.drifters) {
+    const wants = p.carried >= WORLD.drifter_detect_carried && dist2D(d.pos, p.pos) <= WORLD.drifter_detect_range;
+    if (d.state === 'idle' && wants) d.state = 'chase';
+    else if (d.state === 'chase' && !wants) d.state = 'idle';
+    const v = WORLD.drifter_speed * DT;
+    if (d.state === 'chase') {
+      stepShadeTo(d, p.pos, WORLD.drifter_speed);
+    } else if (d.state === 'flee') {
+      const [dx, dz] = dirXZ(p.pos, d.pos);
+      d.pos[0] += dx * v;
+      d.pos[2] += dz * v;
+      d.left -= 1;
+    } else {
+      if (!d.wanderTo || d.wanderLeft <= 0 || dist2D(d.pos, d.wanderTo) < 0.5) {
+        d.wanderTo = world.map.wanderPoint(world.rng);
+        d.wanderLeft = WORLD.shade_wander_retarget_ticks;
+      }
+      d.wanderLeft -= 1;
+      stepShadeTo(d, d.wanderTo, WORLD.drifter_idle_speed);
+    }
+  }
+  world.drifters = world.drifters.filter((d) => d.state !== 'flee' || d.left > 0);
+
+  // (9a) Gió Lạc cướp trước (không mất Ngọn Lửa; bất tử không ngăn)
+  if (active) {
+    for (const d of world.drifters) {
+      if (d.state === 'flee' || p.carried <= 0 || !within(d.pos, p.pos, WORLD.drifter_steal_radius)) continue;
+      d.stolen = Math.min(WORLD.drifter_steal_max, p.carried);
+      p.carried -= d.stolen;
+      d.state = 'flee';
+      d.left = WORLD.drifter_flee_ticks;
+      emit('drifter_steal', { drifter_id: d.id, amount: d.stolen, carried: p.carried });
+    }
+  }
+
   // (9) chạm: tối đa 1 lần mất Ngọn Lửa mỗi tick; Bóng đang choáng/giật lùi/spawning/trong vùng an toàn không gây hại
   if (active && p.invuln <= 0) {
     for (const s of world.shades) {
@@ -403,6 +464,13 @@ export function step(world, input) {
 
   // (10) sinh theo lịch (thực thể mới chỉ tương tác được từ tick sau)
   if (world.randomMotes && sim % WORLD.mote_every_ticks === 0) spawnRandomMote(world);
+  if (world.randomDrifters && sim % WORLD.drifter_every_ticks === 0 && world.drifters.length < WORLD.drifter_max) {
+    let n = world.drifters.length + 1;
+    while (world.drifters.some((d) => d.id === `D${n}`)) n++;
+    const pt = world.map.wanderPoint(world.rng);
+    world.drifters.push({ id: `D${n}`, pos: [pt[0], WORLD.drifter_y, pt[2]], state: 'idle', stolen: 0, left: 0, wanderTo: null, wanderLeft: 0 });
+    emit('drifter_spawned', { id: `D${n}` });
+  }
   const sc = world.map.shade;
   if (world.randomShades && sim >= sc.first && (sim - sc.first) % sc.every === 0) {
     const n = sim === sc.first ? sc.firstCount : 1;

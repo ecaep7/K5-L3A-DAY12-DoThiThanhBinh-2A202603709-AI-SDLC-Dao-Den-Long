@@ -129,6 +129,9 @@ export function createWorld(seed, scenario = null, night = 1) {
     randomShades: sc.random_shades !== false,
     randomMotes: sc.random_motes !== false,
     windEnabled: sc.wind_enabled !== false,
+    randomDrifters: sc.random_drifters !== false && !!map.drifters,
+    drifters: [],
+    charms: [],
     wind: { active: false, dirDeg: 0 },
   };
   world.endTick = Math.round(world.durationS * WORLD.tick_hz);
@@ -147,6 +150,17 @@ export function createWorld(seed, scenario = null, night = 1) {
     }
   }
 
+  (sc.charms ?? map.charms.map((pos) => ({ pos }))).forEach((c, i) => {
+    const wait = 'respawn_ticks' in c ? c.respawn_ticks : 0;
+    world.charms.push({ id: c.id ?? `C${i + 1}`, pos: [...c.pos], available: c.available ?? wait === 0, wait });
+  });
+  (sc.drifters ?? []).forEach((d, i) => {
+    const state = d.state ?? 'idle';
+    world.drifters.push({
+      id: d.id ?? `D${i + 1}`, pos: [...d.pos], state, stolen: d.stolen ?? 0,
+      left: state === 'flee' ? WORLD.drifter_flee_ticks : 0, wanderTo: null, wanderLeft: 0,
+    });
+  });
   (sc.shades ?? []).forEach((s, i) => {
     const state = s.state ?? 'chase';
     const defLeft = { stunned: WORLD.pulse_stun_ticks, recoil: WORLD.recoil_ticks, spawning: 1 }[state] ?? 0;

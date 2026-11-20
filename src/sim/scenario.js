@@ -37,8 +37,22 @@ export function validateScenario(s) {
     });
   }
   for (const k of ['drifters', 'charms']) {
-    if (k in s) need(Array.isArray(s[k]), `${k} phải là mảng`);
+    if (k in s) {
+      need(Array.isArray(s[k]), `${k} phải là mảng`);
+      s[k].forEach((m, i) => {
+        need(isObj(m) && isVec3(m.pos), `${k}[${i}].pos phải là [x,y,z]`);
+        if ('id' in m) need(typeof m.id === 'string' && m.id.length > 0, `${k}[${i}].id phải là chuỗi`);
+      });
+    }
   }
+  (s.drifters ?? []).forEach((m, i) => {
+    if ('state' in m) need(['idle', 'chase', 'flee'].includes(m.state), `drifters[${i}].state phải thuộc idle|chase|flee`);
+    if ('stolen' in m) need(Number.isInteger(m.stolen) && m.stolen >= 0, `drifters[${i}].stolen phải là số nguyên >= 0`);
+  });
+  (s.charms ?? []).forEach((m, i) => {
+    if ('available' in m) need(typeof m.available === 'boolean', `charms[${i}].available phải là boolean`);
+    if ('respawn_ticks' in m) need(Number.isInteger(m.respawn_ticks) && m.respawn_ticks >= 0, `charms[${i}].respawn_ticks phải là số nguyên >= 0`);
+  });
   if ('lanterns' in s) {
     need(Array.isArray(s.lanterns), 'lanterns phải là mảng');
     s.lanterns.forEach((l, i) => {

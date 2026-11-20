@@ -29,8 +29,8 @@ export function snapshotLine(world) {
     shades: world.shades.map((s) => ({ id: s.id, pos: pos3(s.pos), state: s.state })),
     motes_active: world.motes.length,
     motes: world.motes.map((m) => ({ id: m.id, pos: pos3(m.pos), kind: m.kind, ttl_s: m.ttl === null ? null : secs(m.ttl) })),
-    drifters: [],
-    charms: [],
+    drifters: world.drifters.map((d) => ({ id: d.id, pos: pos3(d.pos), state: d.state, stolen: d.stolen })),
+    charms: world.charms.map((c) => ({ id: c.id, pos: pos3(c.pos), available: c.available, respawn_s: secs(c.wait) })),
   });
 }
 

@@ -8,7 +8,8 @@ Không đổi luật, số liệu hay output headless (tất cả test Phase 1�
 - `web/render.js`: `sync` nhận thêm tham số camera tùy chọn (chỉ bench dùng); `web/vite.config.js` build thêm trang `bench.html`.
 - Đóng gói: README đủ mục, CREDITS.md, LICENSE (MIT), bản web tĩnh `.zip` cho Release.
 - R5: Đêm 2/3 trong sim và headless (`src/sim/maps.js`: mặt đứng nhiều tầng, dốc, cầu, bục nhảy, vách, gió mạnh; `step.js` tổng quát hóa di chuyển, Đêm 1 giữ nguyên từng byte). Sự kiện mới `jump_pad`, `wind_warning`, `wind_start`, `wind_end`; snapshot `wind` thật ở Đêm 3. Test `contract` · `--night: 0 và 4 …` đổi kỳ vọng: `--night 2/3` nay chạy mã 0 (trước đây mã 1 vì chưa có). Test mới: `tests/nights.test.js`.
-- Chưa làm (xem README mục "Chưa đạt"): giao diện web cho Đêm 2/3, bảng xếp hạng, accessibility, Gió Lạc/Bùa Gió.
+- Gió Lạc và Bùa Gió (K3 Phase 2) trong sim: `drifters`/`charms` trong snapshot (trước đây luôn `[]`), sự kiện `drifter_spawned`, `drifter_steal`, `drifter_drop`, `charm_picked`; scenario `drifters`/`charms` có kiểm định dạng (mã thoát 2); `tests/drifters.test.js`. Test `nights` · cầu: thêm `charms: []` vì bùa mặc định (35,0,0) nằm trên cầu và đổi tốc độ.
+- Chưa làm (xem README mục "Chưa đạt"): giao diện web cho Đêm 2/3 và K3, bảng xếp hạng, accessibility.
 
 ## Phase 3 — Ticket-03 "Đèn cạn dầu" (Contract v1.2)
 

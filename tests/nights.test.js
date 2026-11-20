@@ -17,7 +17,7 @@ describe('Đêm 2 – Đảo Cau', () => {
     near(s.time_left_s, 270 - 1, 1e-6);
   });
   test('đi trên cầu (x 26..44, |z|≤2) không rơi; bước ra ngoài cầu thì rơi mất 1 lửa', () => {
-    const walk = run({ night: 2, ticks: 90, every: 90, scenario: base({ player: { pos: [30, 0, 0] } }),
+    const walk = run({ night: 2, ticks: 90, every: 90, scenario: base({ player: { pos: [30, 0, 0] }, charms: [] }),
       inputs: { frames: [{ tick: 0, move: [1, 0] }] } });
     const w = walk.snapAt(90);
     near(w.player.pos[0], 30 + 6 * 1.5, 0.05); // 90 tick × 0.1 m
