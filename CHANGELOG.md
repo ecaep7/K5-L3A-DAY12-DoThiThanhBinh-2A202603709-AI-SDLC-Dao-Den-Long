@@ -1,5 +1,14 @@
 # Changelog
 
+## Phase 4 — Ticket-04 "Bình minh" (Contract v1.3)
+Không đổi luật, số liệu hay output headless (tất cả test Phase 1–3 vẫn đạt).
+
+- `contract_version` `"1.2"` → `"1.3"`; `game.contract.json` thêm `bench_cmd` (`node bench/bench.mjs`) và `soak_cmd` (`node src/soak.js`); `build_cmd` thành `npm install && npx playwright install chromium`. Test `contract` · `trường bắt buộc` sửa kỳ vọng theo đó.
+- Mới: `src/soak.js` (soak test, `soak.json`), `bench/bench.mjs` + `web/bench.html` + `web/bench.js` (benchmark Playwright 1280×720, `bench.json`), `tests/soak.test.js`, `tests/bench.test.js`.
+- `web/render.js`: `sync` nhận thêm tham số camera tùy chọn (chỉ bench dùng); `web/vite.config.js` build thêm trang `bench.html`.
+- Đóng gói: README đủ mục, CREDITS.md, LICENSE (MIT), bản web tĩnh `.zip` cho Release.
+- Chưa làm (xem README mục "Chưa đạt"): Đêm 2/3, bảng xếp hạng, accessibility, Gió Lạc/Bùa Gió.
+
 ## Phase 3 — Ticket-03 "Đèn cạn dầu" (Contract v1.2)
 
 ### Breaking changes
@@ -48,3 +57,14 @@ Hệ quả cần biết: vì dầu hao trước khi xử lý Tương tác (bư�
 | `rules` · `snapshot có đủ trường mới` | sửa kỳ vọng | `player` thêm khóa `capacity` |
 
 Các test Phase 1–2 còn lại giữ nguyên và vẫn đạt. Test mới cho luật Phase 3: `tests/fuel.test.js`.
+
+## Phase 2 — Ticket-02 (Contract v1.1)
+Phạm vi K0 (harness) + K1 (số chuẩn, Đêm 1). Chi tiết: `docs/notes/phase2-spec.md`, `docs/notes/assumptions.md` mục "Thay đổi Phase 2".
+- `contract_version` `"1.0"` → `"1.1"`; số chuẩn Ticket-02 thay mọi số tự chọn của Phase 1 (tuning, bản đồ Đêm 1, lướt, tỏa sáng, hồi chiêu, bất tử, điểm). Thứ tự xử lý trong tick được cố định.
+- Test Phase 1 sai vì số mới: sửa kỳ vọng, không xóa/skip. 71 → 127 test.
+- Chưa làm: K2–K5 (Đêm 2/3, Gió Lạc/Bùa Gió, hiệu năng, giao diện mới).
+
+## Phase 1 — Ticket-01 / PRD-0 (Contract v1.0)
+- Mô phỏng thuần, tất định (`src/sim`, PRNG có seed), CLI headless theo Test Contract (60 tick/giây, snapshot/sự kiện JSONL, mã thoát 0/1/2), `game.contract.json`.
+- Giao diện Three.js + Vite chỉ vẽ và đọc input. Luật đầu tiên: nhặt đom đóm, thắp 5 đèn, Bóng Mực, tỏa sáng, 3 ngọn lửa, Đêm 1.
+- 71 test node:test; kiểm tra đột biến tay 15/15 bị bắt.
