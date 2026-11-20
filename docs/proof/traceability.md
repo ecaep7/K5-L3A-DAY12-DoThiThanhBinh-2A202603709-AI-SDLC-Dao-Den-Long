@@ -54,6 +54,9 @@ Bảng luật → test đầy đủ (15 mục, kèm tên nhóm test) ở `docs/n
 - `docs/proof/phase2/verify-report.md` + `night1-run1/2.jsonl`: chạy bằng skill `/verify` (tạo lại bằng lệnh, không sửa tay).
 - Chưa làm: K2–K5 (xem phase2-spec.md).
 
+## Giao diện web Phase 4
+- Chơi 3 Đêm, thanh dầu (nhấp nháy khi fuel < 30), đồng hồ đỏ khi ≤ 30 s, Gió Lạc/Bùa Gió, địa hình Đêm 2/3. Kiểm bằng Chrome thật (Playwright): menu → từng Đêm → ép thắng → "Đêm kế tiếp" → ép thua, không lỗi JS (chỉ 1 lỗi tải tài nguyên 404 chưa rõ, có thể favicon). Chưa kiểm bằng mắt thanh dầu nhấp nháy và đồng hồ đỏ khi chơi thật.
+
 ## Phase 4 – Ticket-04, Contract v1.3
 | Yêu cầu | Trạng thái | Bằng chứng |
 |---|---|---|
@@ -65,8 +68,8 @@ Bảng luật → test đầy đủ (15 mục, kèm tên nhóm test) ở `docs/n
 | Soak: mem_end ≤ 1.2×mem_start | **Chưa đạt** | `soak.json`: 36.1 → 44.9 MB (1.24); lặp lại 5 lần 1.23–1.25; heap phẳng (không rò), heap sau GC +0.4 MB/10 Đêm, `--jitless` chỉ +4%: phần tăng là bộ nhớ JIT nóng máy, không phải dữ liệu Đêm trước bị giữ lại; không đổi cách đo |
 | Mục 3 Bảng xếp hạng, `--export-leaderboard` | **Chưa đạt** | không làm theo chỉ đạo Phase 4 (cũng cần màn Bình Minh Đêm 3) |
 | Mục 4 Accessibility | **Chưa đạt** | không làm theo chỉ đạo Phase 4 |
-| Đêm 2, Đêm 3 (R5): bản đồ, cầu, bục nhảy, tầng, dốc, tháp, gió mạnh, Bóng Mực 4.5 m/s | Một phần (sim + headless) | `src/sim/maps.js`, `tests/nights.test.js` (10 scenario test); giao diện web và chuyển Đêm: chưa làm |
-| Gió Lạc (idle/chase/flee, cướp, Tỏa Sáng, sinh lịch) và Bùa Gió (nhặt, 7.2 m/s, lướt không hồi chiêu, hồi sau 2700 tick) | Đạt trong sim + headless | `tests/drifters.test.js` (12 test); chưa có hình/HUD/âm thanh |
+| Đêm 2, Đêm 3 (R5): bản đồ, cầu, bục nhảy, tầng, dốc, tháp, gió mạnh, Bóng Mực 4.5 m/s | Một phần (sim + headless) | `src/sim/maps.js`, `tests/nights.test.js` (10 scenario test); giao diện web: có (menu, chuỗi 1→2→3, kết quả, chơi lại Đêm), ảnh `docs/proof/ui-night2.png`, `ui-night3.png`, kiểm bằng Playwright, không có test tự động |
+| Gió Lạc (idle/chase/flee, cướp, Tỏa Sáng, sinh lịch) và Bùa Gió (nhặt, 7.2 m/s, lướt không hồi chiêu, hồi sau 2700 tick) | Đạt trong sim + headless | `tests/drifters.test.js` (12 test); đã vẽ trong web (hình khối đơn giản); chưa có âm thanh |
 | Mục 5 README, CHANGELOG 4 phase, CREDITS, LICENSE, bản web tĩnh .zip | Đạt (zip ở `release/`, không commit) | `README.md`, `CHANGELOG.md`, `CREDITS.md`, `LICENSE` |
 | Mục 6 Contract v1.3 (`bench_cmd`, `soak_cmd`) | Đạt | `game.contract.json`; `tests/contract.test.js` |
 | Mục 7 Retro, video demo, GitHub Release v1.0.0, tag `phase-4` | **Chưa đạt** | tác giả tự làm |

@@ -17,6 +17,12 @@
     #end { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
            background: rgba(15, 8, 30, .78); pointer-events: auto; text-align: center; }
     #end h1 { margin: 0; font-size: 44px; color: #ffb347; }
+    #menu { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+            background: rgba(15, 8, 30, .88); pointer-events: auto; text-align: center; }
+    #menu h1 { margin: 0 0 8px; font-size: 44px; color: #ffb347; }
+    #menu button, #end button.alt { font-size: 20px; padding: 10px 26px; border-radius: 12px; border: 0; background: #ffb347; color: #2a1740; cursor: pointer; min-width: 280px; }
+    #end button.alt { min-width: 0; background: #6b5a8a; color: #ffe9c2; }
+    .chip.red { background: rgba(160, 20, 30, .85); border-color: #ff5a5f; }
     #end button { font-size: 20px; padding: 10px 26px; border-radius: 12px; border: 0; background: #ffb347; color: #2a1740; cursor: pointer; }
   </style>
 </head>
@@ -27,15 +33,26 @@
       <div class="chip">Lửa <b id="flames"></b></div>
       <div class="chip">Đom đóm <b id="carried"></b></div>
       <div class="chip">Đèn <b id="lit"></b></div>
-      <div class="chip">Trời sáng sau <b id="time"></b></div>
+      <div class="chip" id="timechip">Trời sáng sau <b id="time"></b></div>
+      <div class="chip"><b id="nightname"></b></div>
       <div class="chip">Điểm <b id="score"></b></div>
     </div>
     <div id="toast"></div>
     <div id="help">WASD / mũi tên: đi · Space: nhảy · E: nạp đèn · F: tỏa sáng · kéo chuột: xoay camera</div>
+    <div id="menu">
+      <h1>Đảo Đèn Lồng</h1>
+      <div>Mây, người giữ đèn nhỏ tuổi, giữ cho đèn sáng đến bình minh.</div>
+      <button data-start="chain">Chơi chuỗi 3 Đêm</button>
+      <button data-start="1">Đêm 1 – Đảo Bến</button>
+      <button data-start="2">Đêm 2 – Đảo Cau</button>
+      <button data-start="3">Đêm 3 – Đảo Chuông</button>
+    </div>
     <div id="end">
       <h1 id="end-title"></h1>
       <div id="end-detail"></div>
-      <button id="restart">Chơi lại (Enter)</button>
+      <button id="next" style="display:none">Đêm kế tiếp</button>
+      <button id="restart">Chơi lại Đêm (Enter)</button>
+      <button id="tomenu" class="alt">Về menu</button>
     </div>
   </div>
   <script type="module" src="./main.js"></script>

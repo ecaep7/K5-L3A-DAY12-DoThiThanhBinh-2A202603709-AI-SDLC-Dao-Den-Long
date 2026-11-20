@@ -31,7 +31,9 @@ Tạo lại bản web tĩnh: `npm run build:web` (ra thư mục `dist/`).
 | kéo chuột trái | xoay camera |
 | Enter | chơi lại khi ván kết thúc |
 
-Lướt và tạm dừng đã có trong luật (headless) nhưng chưa có phím trong giao diện, xem "Chưa đạt".
+Menu chính: chơi chuỗi 3 Đêm (1→2→3, hiện tổng điểm và màn Bình Minh khi thắng Đêm 3) hoặc chọn riêng từng Đêm. Cuối Đêm có màn kết quả: Đêm kế tiếp (trong chuỗi) / Chơi lại Đêm / Về menu. Lướt và tạm dừng có trong luật (headless) nhưng chưa có phím trong giao diện, xem "Chưa đạt".
+
+Giao diện: thanh dầu trên đèn đang sáng (đỏ và nhấp nháy 1 Hz khi fuel < 30), đồng hồ đổi đỏ khi còn ≤ 30 s, vẽ Gió Lạc (dải xám xanh) và Bùa Gió (lá bùa đỏ viền vàng). Ảnh: `docs/proof/ui-night2.png`, `ui-night3.png`.
 
 ## Luật tóm tắt (Contract v1.2)
 Đèn thắp cần 10 đom đóm (thắp lại sau khi cạn: 5). Đèn sáng có dầu 0–100, hao 1/s; hết dầu thì tắt. Chỉ đèn có dầu ≥ 30 mới tạo vùng an toàn 6 m. Bóng Mực đi tới đèn yếu để hút dầu 5/s. Hết giờ mà Mây còn sống và có ≥ 60% đèn sáng thì thắng (`dawn_survived`). Bị chạm: mất 1 lửa (có 3). Chi tiết: `docs/notes/assumptions.md`, lý do đổi luật: `docs/adr/0001-lantern-fuel-and-win-rule.md`.
@@ -67,11 +69,11 @@ Chạy 10 Đêm liên tiếp trong một tiến trình, xoay vòng Đêm 1 → 2
 
 ## Chưa đạt
 Phần chưa làm, nói thẳng:
-- **Đêm 2 và Đêm 3**: đã có trong sim và headless (bản đồ, cầu, tầng, dốc, bục nhảy, tháp chuông, gió mạnh, Bóng Mực 4.5 m/s Đêm 3), nhưng **chưa có trong giao diện web** (web chỉ chơi Đêm 1) và chưa có màn chuyển Đêm/Bình Minh. Chỉ có test scenario (`tests/nights.test.js`); tầng/vách của Bóng Mực được đơn giản hóa (Bóng Mực không bị vách chặn, chỉ bám độ cao mặt đất); điểm xuất phát Đêm 2/3 không có trong ticket (tự chọn: (0,0,0) và (0,0,-20)); sự kiện `jump_pad`, `wind_warning/start/end` do tôi đặt tên.
+- **Đêm 2 và Đêm 3**: đã có trong sim và headless (bản đồ, cầu, tầng, dốc, bục nhảy, tháp chuông, gió mạnh, Bóng Mực 4.5 m/s Đêm 3), và chơi được trong giao diện web. Phần giao diện này chưa có test tự động (chỉ kiểm bằng trình duyệt thật: menu, chuyển Đêm, kết quả; xem ảnh). Test tự động chỉ là scenario (`tests/nights.test.js`); tầng/vách của Bóng Mực được đơn giản hóa (Bóng Mực không bị vách chặn, chỉ bám độ cao mặt đất); điểm xuất phát Đêm 2/3 không có trong ticket (tự chọn: (0,0,0) và (0,0,-20)); sự kiện `jump_pad`, `wind_warning/start/end` do tôi đặt tên.
 - **Soak không đạt ngưỡng bộ nhớ**: `soak.json` hiện có `mem_end_mb` 44.9 > 1.2 × `mem_start_mb` 36.1 (tỉ lệ 1.24, chạy lại 5 lần đều 1.23–1.25). Đã tìm nguyên nhân: đây không phải dữ liệu Đêm trước còn bị giữ. Heap JS sau GC chỉ tăng ~0.4 MB qua 10 Đêm (và phẳng qua 200 Đêm); RSS nhảy ~10 MB ngay trong Đêm đầu tiên rồi dao động quanh mức đó. Với `node --jitless`, RSS 30.9 → 32.3 MB (+4%), nên phần tăng là bộ nhớ mã JIT/bộ cấp phát khi nóng máy. Giữ nguyên cách đo (`mem_start_mb` sau khi dựng Đêm đầu), nên ghi là chưa đạt.
-- **Gió Lạc và Bùa Gió**: có trong sim + headless (Đêm 2, 3; `tests/drifters.test.js`), chưa vẽ trong giao diện web và chưa có HUD/âm thanh/menu/tạm dừng/cài đặt của K3. Gió Lạc idle lượn đến điểm ngẫu nhiên (tự chọn); sự kiện `drifter_spawned` do tôi đặt; Tỏa Sáng không cho điểm khi trúng Gió Lạc.
+- **Gió Lạc và Bùa Gió**: có trong sim + headless (Đêm 2, 3; `tests/drifters.test.js`) và đã vẽ trong web (hình khối đơn giản, thông báo chữ). Chưa có âm thanh, tạm dừng, cài đặt, mũi tên chỉ đèn, thanh đom đóm 10 ô, lá bay báo gió, màn giới thiệu Đêm có lời Ông Đăng. Gió Lạc idle lượn đến điểm ngẫu nhiên (tự chọn); sự kiện `drifter_spawned` do tôi đặt; Tỏa Sáng không cho điểm khi trúng Gió Lạc.
 - **Bảng xếp hạng cục bộ** (mục 3), lệnh `--export-leaderboard`: chưa làm.
-- **Dễ tiếp cận** (mục 4): đổi phím, phụ đề/mũi tên chỉ báo, giảm chuyển động, chữ lớn ×1.25: chưa làm. Cũng chưa có phím lướt/tạm dừng, thanh dầu, nhấp nháy 1 Hz, chế độ mù màu.
+- **Dễ tiếp cận** (mục 4): đổi phím, phụ đề/mũi tên chỉ báo, giảm chuyển động, chữ lớn ×1.25: chưa làm. Cũng chưa có phím lướt/tạm dừng và chế độ mù màu.
 - **Hiệu năng**: trên máy tác giả `p1_low_fps` = 30, chỉ vừa chạm ngưỡng 30; chưa tối ưu. Số chấm chính thức là của máy giảng viên.
 - **Bench**: `peak_mem_mb` = null (xem trên). Hai lần chạy đầu tiên bị đóng trình duyệt giữa chừng (chưa rõ nguyên nhân), lần thứ ba xong; chưa xử lý tự thử lại.
 - **Soak**: `results` toàn `lost` vì input ngẫu nhiên không thắp đèn có chủ đích; chạy 200 Đêm cho thấy heap phẳng (không rò) nhưng RSS tăng nhẹ theo bộ cấp phát.
