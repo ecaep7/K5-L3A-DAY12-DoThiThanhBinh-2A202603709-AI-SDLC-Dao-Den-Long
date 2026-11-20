@@ -28,3 +28,11 @@ Tất cả test nằm trong `tests/`, chạy bằng `npm test` (node:test) qua C
 ## Giao diện
 - `docs/proof/ui-start.png`: cảnh đầu ván (Chrome headless, `?seed=7&freeze=1`).
 - Giao diện chỉ vẽ trạng thái của `src/sim`; luật được kiểm bằng headless ở trên.
+
+## Phase 2 (K1) – số chuẩn Ticket-02, Contract v1.1
+Bảng luật → test đầy đủ (15 mục, kèm tên nhóm test) ở `docs/notes/phase2-spec.md`; luật đổi so với Phase 1 và lý do sửa kỳ vọng test ở `docs/notes/assumptions.md` mục "Thay đổi Phase 2".
+
+- `npm test`: 127 test, 0 đỏ (Phase 1 có 71; các test Phase 1 sai vì số mới đã sửa kỳ vọng, không xóa/skip).
+- Đột biến tay (K1): đổi tỏa sáng thành 2D, cộng điểm khi nhặt, bỏ hồi chiêu lướt, cho Bóng trong vùng an toàn gây hại, rơi tôn trọng bất tử, thắng xét trước thua, đổi thời gian recoil → **7/7 bị ít nhất 1 test bắt**.
+- `docs/proof/phase2/verify-report.md` + `night1-run1/2.jsonl`: chạy bằng skill `/verify` (tạo lại bằng lệnh, không sửa tay).
+- Chưa làm: K2–K5 (xem phase2-spec.md).

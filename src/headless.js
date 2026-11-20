@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// CLI headless theo Test Contract v1.0.
+// CLI headless theo Test Contract v1.1.
 // node src/headless.js --seed <int> --night 1 [--scenario f.json] [--inputs f.json]
 //                      --ticks <int> --out <f.jsonl> [--snapshot-every <int>=10]
 import fs from 'node:fs';
@@ -29,8 +29,9 @@ function parseArgs(argv) {
     return Number(v);
   };
   const night = int('night', a.night, 1);
-  if (night !== 1) throw new UsageError('chỉ hỗ trợ --night 1');
+  if (night > 3) throw new UsageError('--night phải là 1, 2 hoặc 3');
   return {
+    night,
     seed: int('seed', a.seed, Number.MIN_SAFE_INTEGER),
     ticks: int('ticks', a.ticks, 0),
     every: 'snapshot-every' in a ? int('snapshot-every', a['snapshot-every'], 1) : 10,
@@ -58,7 +59,7 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
   const scenario = args.scenario ? readJson(args.scenario, 'scenario') : null;
   const frames = args.inputs ? parseInputs(readJson(args.inputs, 'inputs')) : [];
-  const world = createWorld(args.seed, scenario);
+  const world = createWorld(args.seed, scenario, args.night);
   const inputAt = createInputTimeline(frames);
 
   const lines = [snapshotLine(world)];

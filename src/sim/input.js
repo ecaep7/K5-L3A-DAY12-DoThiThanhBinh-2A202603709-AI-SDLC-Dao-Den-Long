@@ -1,6 +1,6 @@
 import { FormatError } from './errors.js';
 
-const BUTTONS = ['jump', 'interact', 'pulse', 'dash'];
+const BUTTONS = ['jump', 'interact', 'pulse', 'dash', 'pause'];
 
 const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
 
@@ -40,7 +40,7 @@ export function parseInputs(obj) {
 
 // Trả về hàm at(k) cho trạng thái input (giữ nguyên) ở tick k. Gọi với k tăng dần.
 export function createInputTimeline(frames) {
-  const state = { move: [0, 0], cam_yaw_deg: 0, jump: false, interact: false, pulse: false, dash: false };
+  const state = { move: [0, 0], cam_yaw_deg: 0, jump: false, interact: false, pulse: false, dash: false, pause: false };
   let idx = 0;
   return function at(k) {
     while (idx < frames.length && frames[idx].tick <= k) {

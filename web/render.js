@@ -170,7 +170,7 @@ export function createRenderer(canvasParent) {
         seenS.add(s.id);
         let v = shadeViews.get(s.id);
         if (!v) { v = makeShade(); shadeViews.set(s.id, v); }
-        const stunned = s.stun > 0;
+        const stunned = s.state === 'stunned';
         v.g.position.set(s.pos[0], s.pos[1] + 0.1 * Math.sin(t * 4 + s.pos[0]), s.pos[2]);
         v.g.rotation.y = Math.atan2(p.pos[0] - s.pos[0], p.pos[2] - s.pos[2]);
         v.g.scale.setScalar(stunned ? 0.7 : 1);

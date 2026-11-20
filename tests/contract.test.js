@@ -9,11 +9,22 @@ import { TUNING, mulberry32 } from '../src/sim/index.js';
 describe('game.contract.json', () => {
   const c = JSON.parse(fs.readFileSync(path.join(ROOT, 'game.contract.json'), 'utf8'));
   test('trường bắt buộc', () => {
-    assert.equal(c.contract_version, '1.0');
+    assert.equal(c.contract_version, '1.1');
     for (const k of ['team', 'build_cmd', 'run_cmd', 'headless_cmd']) assert.ok(typeof c[k] === 'string' && c[k]);
   });
   test('tuning khớp src/sim/tuning.js (từng khóa)', () => {
     assert.deepEqual(c.tuning, JSON.parse(JSON.stringify(TUNING)));
+  });
+  test('tuning đúng số chuẩn Ticket-02 (viết tay từ ticket, không chép từ code)', () => {
+    const t = c.tuning;
+    assert.deepEqual(
+      [t.player_speed, t.carry_capacity, t.lantern_cost, t.pickup_radius, t.interact_radius, t.pulse_cost, t.pulse_radius,
+        t.pulse_cooldown_s, t.pulse_stun_s, t.pulse_push_m, t.safe_radius, t.shade_speed, t.shade_hit_radius, t.flames,
+        t.invuln_s, t.hit_drop_ratio, t.dash_speed, t.dash_duration_s, t.dash_cooldown_s,
+        t.night1_duration_s, t.night2_duration_s, t.night3_duration_s, t.fall_enabled],
+      [6, 10, 10, 1, 2, 3, 5, 3, 2, 4, 6, 4, 1, 3, 1.5, 0.5, 14, 0.2, 1.5, 300, 330, 360, true],
+    );
+    assert.deepEqual(t.score, { per_mote: 10, per_lantern: 100, per_stun: 5, per_second_left: 2, per_flame_left: 50 });
   });
   test('tuning khớp bảng trong assumptions.md', () => {
     const md = fs.readFileSync(path.join(ROOT, 'docs', 'notes', 'assumptions.md'), 'utf8');
@@ -42,26 +53,42 @@ describe('PRNG', () => {
 describe('thế giới mặc định (Đêm 1)', () => {
   const r = run({ seed: 3, ticks: 0 });
   const s = r.snapAt(0);
-  test('người chơi ở (0,0,0), 3 flames, 5 đèn, 40 đom đóm, 3 Bóng Mực', () => {
-    assert.deepEqual(s.player, { pos: [0, 0, 0], flames: 3, carried: 0 });
+  test('người chơi ở (0,0,0), 3 flames, 5 đèn, 20 đom đóm, chưa có Bóng Mực, 300 s', () => {
+    assert.equal(s.player.flames, 3);
+    assert.equal(s.player.carried, 0);
+    assert.deepEqual(s.player.pos, [0, 0, 0]);
+    assert.deepEqual(s.player.vel, [0, 0, 0]);
+    assert.equal(s.player.grounded, true);
+    assert.equal(s.player.invuln, false);
     assert.equal(s.lanterns.length, 5);
-    assert.equal(s.motes_active, 40);
-    assert.deepEqual(s.shades.map((x) => x.id), ['S1', 'S2', 'S3']);
+    assert.equal(s.motes_active, 20);
+    assert.deepEqual(s.shades, []);
     assert.equal(s.time_left_s, 300);
     assert.equal(s.state, 'playing');
+    assert.equal(s.night, 1);
+    assert.deepEqual(s.wind, { active: false, dir_deg: 0 });
+    assert.deepEqual(s.drifters, []);
+    assert.deepEqual(s.charms, []);
   });
-  test('L1 ở (0,0,25); 5 đèn cách đều trên vòng 25 m', () => {
-    assert.deepEqual(s.lanterns[0].pos, [0, 0, 25]);
-    s.lanterns.forEach((l, i) => {
-      assert.ok(Math.abs(Math.hypot(l.pos[0], l.pos[2]) - 25) < 0.002);
-      const th = (i * 72 * Math.PI) / 180;
-      assert.ok(Math.abs(l.pos[0] - 25 * Math.sin(th)) < 0.002 && Math.abs(l.pos[2] - 25 * Math.cos(th)) < 0.002);
-      assert.equal(l.lit, false);
-    });
+  test('5 đèn đúng tọa độ chuẩn của ticket', () => {
+    assert.deepEqual(s.lanterns.map((l) => l.pos),
+      [[0, 0, 25], [23.8, 0, 7.7], [14.7, 0, -20.2], [-14.7, 0, -20.2], [-23.8, 0, 7.7]]);
+    assert.ok(s.lanterns.every((l) => l.lit === false && l.deposited === 0));
   });
-  test('đom đóm nằm trong đảo; Bóng Mực ban đầu cách người chơi ≥ 15 m', () => {
-    for (const m of s.motes) assert.ok(Math.hypot(m.pos[0], m.pos[2]) <= 40);
-    for (const x of s.shades) assert.ok(Math.hypot(x.pos[0], x.pos[2]) >= 15 - 0.001);
+  test('20 đom đóm ở 20 điểm khác nhau thuộc 8 điểm r=12 (mỗi 45°) ∪ 16 điểm r=33 (mỗi 22.5°)', () => {
+    const pts = [];
+    for (let i = 0; i < 8; i++) pts.push([12 * Math.cos(i * Math.PI / 4), 12 * Math.sin(i * Math.PI / 4)]);
+    for (let i = 0; i < 16; i++) pts.push([33 * Math.cos(i * Math.PI / 8), 33 * Math.sin(i * Math.PI / 8)]);
+    const used = new Set();
+    for (const m of s.motes) {
+      assert.equal(m.kind, 'random');
+      assert.equal(m.ttl_s, null);
+      assert.equal(m.pos[1], 0);
+      const k = pts.findIndex((q) => Math.abs(q[0] - m.pos[0]) < 0.002 && Math.abs(q[1] - m.pos[2]) < 0.002);
+      assert.ok(k >= 0, `đom đóm ${m.id} không nằm trên điểm sinh nào`);
+      used.add(k);
+    }
+    assert.equal(used.size, 20);
   });
   test('seed khác → bố trí đom đóm khác', () => {
     assert.notDeepEqual(run({ seed: 4, ticks: 0 }).snapAt(0).motes, s.motes);
@@ -122,10 +149,26 @@ describe('mã thoát', () => {
     assert.equal(run({ inputs: 1, raw: { inputs: '{ hỏng' } }).code, 2);
     assert.equal(run({ scenario: 1, raw: { scenario: 'xyz' } }).code, 2);
   });
+  test('2: trường mới của v1.1 sai kiểu (state lạ, cờ không phải boolean, charms không phải mảng)', () => {
+    assert.equal(run({ scenario: { shades: [{ pos: [1, 0, 1], state: 'dancing' }] } }).code, 2);
+    assert.equal(run({ scenario: { shades: [{ pos: [1, 0, 1], state_ticks_left: -1 }] } }).code, 2);
+    assert.equal(run({ scenario: { wind_enabled: 'yes' } }).code, 2);
+    assert.equal(run({ scenario: { charms: {} } }).code, 2);
+    assert.equal(run({ scenario: { player: { dash_cd_ticks: 1.5 } } }).code, 2);
+    assert.equal(run({ inputs: { frames: [{ tick: 0, dash: 1 }] } }).code, 2);
+    assert.equal(run({ inputs: { frames: [{ tick: 0, pause: 'x' }] } }).code, 2);
+  });
   test('2: scenario sai kiểu (pos là chuỗi; id đèn lạ)', () => {
     assert.equal(run({ scenario: { player: { pos: 'giữa' } } }).code, 2);
     assert.equal(run({ scenario: { shades: [{ pos: [1, 2] }] } }).code, 2);
     assert.equal(run({ scenario: { lanterns: [{ id: 'L9' }] } }).code, 2);
+  });
+  test('--night: 0 và 4 bị từ chối (mã 1); 2, 3 chưa làm ở K1 nên mã 1 kèm thông báo', () => {
+    for (const n of ['0', '4', '2', '3']) {
+      const r = runCli(['--seed', '1', '--night', n, '--ticks', '1', '--out', writeTmp('o', '')]);
+      assert.equal(r.code, 1, `night ${n}`);
+      assert.ok(r.stderr.length > 0);
+    }
   });
   test('khác 0 (và ≠ 2) khi thiếu tham số hoặc không đọc được file', () => {
     for (const args of [['--night', '1', '--ticks', '1', '--out', 'x'], ['--seed', '1', '--night', '1', '--out', 'x'],

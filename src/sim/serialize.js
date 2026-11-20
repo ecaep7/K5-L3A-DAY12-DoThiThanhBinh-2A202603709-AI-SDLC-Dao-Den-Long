@@ -1,4 +1,5 @@
 import { timeLeft } from './world.js';
+import { WORLD } from './tuning.js';
 
 // Làm tròn 3 chữ số thập phân, tránh -0.
 export function r3(v) {
@@ -6,20 +7,30 @@ export function r3(v) {
   return x === 0 ? 0 : x;
 }
 const pos3 = (p) => [r3(p[0]), r3(p[1]), r3(p[2])];
+const secs = (ticks) => r3(ticks / WORLD.tick_hz);
 
 export function snapshotLine(world) {
+  const p = world.player;
   return JSON.stringify({
     type: 'snapshot',
     tick: world.tick,
-    sim_tick: world.tick,
-    state: world.state,
+    sim_tick: world.simTick,
+    state: world.paused && world.state === 'playing' ? 'paused' : world.state,
+    night: world.night,
     time_left_s: r3(timeLeft(world)),
     score: world.score,
-    player: { pos: pos3(world.player.pos), flames: world.player.flames, carried: world.player.carried },
+    wind: { active: false, dir_deg: 0 },
+    player: {
+      pos: pos3(p.pos), vel: pos3(p.vel), grounded: p.grounded, invuln: p.invuln > 0,
+      dash_cd_s: secs(p.dashCd), pulse_cd_s: secs(p.pulseCd), charm_s: secs(p.charm),
+      flames: p.flames, carried: p.carried,
+    },
     lanterns: world.lanterns.map((l) => ({ id: l.id, pos: pos3(l.pos), lit: l.lit, deposited: l.deposited })),
-    shades: world.shades.map((s) => ({ id: s.id, pos: pos3(s.pos), state: s.stun > 0 ? 'stunned' : 'chase' })),
+    shades: world.shades.map((s) => ({ id: s.id, pos: pos3(s.pos), state: s.state })),
     motes_active: world.motes.length,
-    motes: world.motes.map((m) => ({ id: m.id, pos: pos3(m.pos) })),
+    motes: world.motes.map((m) => ({ id: m.id, pos: pos3(m.pos), kind: m.kind, ttl_s: m.ttl === null ? null : secs(m.ttl) })),
+    drifters: [],
+    charms: [],
   });
 }
 

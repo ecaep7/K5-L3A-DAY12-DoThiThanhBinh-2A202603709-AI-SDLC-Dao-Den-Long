@@ -22,22 +22,23 @@ export function runCli(args) {
 }
 
 // Chạy một ván. scenario/inputs là đối tượng JS (được ghi ra file tạm).
-export function run({ seed = 1, ticks = 1, every = 1, scenario, inputs, raw } = {}) {
+export function run({ seed = 1, ticks = 1, every = 1, night = 1, scenario, inputs, raw } = {}) {
   const out = path.join(TMP, `${counter++}-out.jsonl`);
-  const args = ['--seed', String(seed), '--night', '1', '--ticks', String(ticks), '--out', out,
+  const args = ['--seed', String(seed), '--night', String(night), '--ticks', String(ticks), '--out', out,
     '--snapshot-every', String(every)];
   if (scenario !== undefined) args.push('--scenario', writeTmp('scenario.json', raw?.scenario ?? scenario));
   if (inputs !== undefined) args.push('--inputs', writeTmp('inputs.json', raw?.inputs ?? inputs));
   const { code, stderr } = runCli(args);
   const text = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : '';
   const lines = text.split('\n').filter(Boolean).map((l) => JSON.parse(l));
-  const events = lines.filter((l) => l.type === 'event');
+  const allEvents = lines.filter((l) => l.type === 'event');
+  const events = allEvents.filter((l) => l.name !== 'night_start'); // night_start có test riêng
   const snaps = lines.filter((l) => l.type === 'snapshot');
   return {
-    code, stderr, text, out, lines, events, snaps,
+    code, stderr, text, out, lines, events, allEvents, snaps,
     end: lines.at(-1),
     snapAt: (t) => snaps.find((s) => s.tick === t),
-    ev: (name) => events.filter((e) => e.name === name),
+    ev: (name) => allEvents.filter((e) => e.name === name),
   };
 }
 
