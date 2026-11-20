@@ -122,7 +122,7 @@ export function createRenderer(canvasParent) {
     onEvents(events, world) {
       for (const e of events) if (e.name === 'pulse') addPulse(world.player.pos);
     },
-    sync(world, dt, camYawDeg) {
+    sync(world, dt, camYawDeg, camOverride = null) {
       t += dt;
       const p = world.player;
 
@@ -192,8 +192,13 @@ export function createRenderer(canvasParent) {
       // camera theo sau; hướng nhìn = (sinθ, cosθ) khớp quy ước move của contract
       const th = (camYawDeg * Math.PI) / 180;
       const target = new THREE.Vector3(p.pos[0], 1.0, p.pos[2]);
-      camera.position.set(target.x - Math.sin(th) * 13, 9 + p.pos[1] * 0.3, target.z - Math.cos(th) * 13);
-      camera.lookAt(target);
+      if (camOverride) { // cảnh benchmark: camera do bench.js điều khiển
+        camera.position.set(...camOverride.pos);
+        camera.lookAt(...camOverride.look);
+      } else {
+        camera.position.set(target.x - Math.sin(th) * 13, 9 + p.pos[1] * 0.3, target.z - Math.cos(th) * 13);
+        camera.lookAt(target);
+      }
       renderer.render(scene, camera);
     },
   };

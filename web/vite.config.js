@@ -8,5 +8,6 @@ export default defineConfig({
   root: here,
   base: './',
   server: { fs: { allow: [path.resolve(here, '..')] } },
-  build: { outDir: path.resolve(here, '..', 'dist'), emptyOutDir: true },
+  build: { outDir: path.resolve(here, '..', 'dist'), emptyOutDir: true,
+    rollupOptions: { input: { main: path.resolve(here, 'index.html'), bench: path.resolve(here, 'bench.html') } } },
 });

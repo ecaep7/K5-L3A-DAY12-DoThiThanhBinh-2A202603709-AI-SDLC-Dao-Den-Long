@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.3",
+  "avg_fps": 103.7,
+  "p1_low_fps": 30,
+  "frame_ms_p95": 16.8,
+  "frames": 3110,
+  "load_ms": 1709,
+  "peak_mem_mb": null,
+  "peak_mem_note": "Bản web chạy trong trình duyệt: trang không đọc được RSS của tiến trình trình duyệt, nên không đo (null).",
+  "vsync_off": true,
+  "vsync_note": "Chromium chạy với --disable-frame-rate-limit --disable-gpu-vsync; một số GPU/trình điều khiển/chế độ cửa sổ vẫn có thể ép vsync, xem avg_fps.",
+  "renderer": "three@0.170 WebGLRenderer, Chrome/Chromium 157.0.8103.80, GPU: ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "os": "Windows_NT 10.0.19045 x64",
+  "window": [
+    1280,
+    720
+  ],
+  "device_pixel_ratio": 1.0000000149011612
+}
