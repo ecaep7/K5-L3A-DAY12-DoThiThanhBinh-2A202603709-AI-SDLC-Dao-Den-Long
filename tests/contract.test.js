@@ -9,8 +9,8 @@ import { TUNING, mulberry32 } from '../src/sim/index.js';
 describe('game.contract.json', () => {
   const c = JSON.parse(fs.readFileSync(path.join(ROOT, 'game.contract.json'), 'utf8'));
   test('trường bắt buộc', () => {
-    assert.equal(c.contract_version, '1.2');
-    for (const k of ['team', 'build_cmd', 'run_cmd', 'headless_cmd']) assert.ok(typeof c[k] === 'string' && c[k]);
+    assert.equal(c.contract_version, '1.3');
+    for (const k of ['team', 'build_cmd', 'run_cmd', 'headless_cmd', 'bench_cmd', 'soak_cmd']) assert.ok(typeof c[k] === 'string' && c[k]);
   });
   test('tuning khớp src/sim/tuning.js (từng khóa)', () => {
     assert.deepEqual(c.tuning, JSON.parse(JSON.stringify(TUNING)));
