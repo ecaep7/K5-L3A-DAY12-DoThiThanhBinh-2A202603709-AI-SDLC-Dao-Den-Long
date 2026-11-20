@@ -49,3 +49,6 @@ Cache hit 98% → tiết kiệm nhờ ngữ cảnh ổn định. Đổi sang Son
 6. **Trễ giờ, phải cắt phạm vi**
    - Chuyện gì xảy ra: Phase 3 mở khi Phase 2 mới bắt đầu.
    - Xử lý: giữ K0 (harness) và K1 (số chuẩn + Contract v1.1 cho Đêm 1) cho tag phase-2. Dời Đêm 2/3, Gió Lạc, Bùa Gió và giao diện sang Phase 4, vì test của các phase trước vẫn được chạy lại ở tag sau.
+Kết thúc Phase 2 (16:33): quota tuần 61% → 62%, session 14% → 26%.
+Chi phí ước tính: $2.15 (Sonnet $2.15, Haiku $0.0001), 26 request, 26 phút, +856 / −202 dòng code.
+Cache hit 95%. Kết quả: 127/127 test xanh, K0 (skill /verify + Stop hook) và K1 (số chuẩn + Contract v1.1 cho Đêm 1) xong; K2–K5 dời sang Phase 4.
