@@ -22,6 +22,23 @@ Tất cả test nằm trong `tests/`, chạy bằng `npm test` (node:test) qua C
 | Tất định (cùng seed → giống từng byte) | determinism.test.js (3 cấu hình + seed khác thì khác) |
 | `src/sim` thuần (không three, Math.random, Date) | purity.test.js |
 
+## Phase 3 (Ticket-03, Contract v1.2) — `tests/fuel.test.js` trừ khi ghi khác
+
+| Luật (assumptions.md, "Thay đổi Phase 3") | Test |
+|---|---|
+| Dầu hao 1/s, đơn vị nguyên, xuất 1 chữ số; scenario `lit` mặc định fuel 100, `ever_lit`, `fuel` | nhóm `nhiên liệu: hao và scenario` |
+| Châm dầu: `used = min(mang, ceil((100−fuel)/10))`, +5/đom đóm, sự kiện `refuel`, chọn đèn gần nhất/id nhỏ | nhóm `châm dầu` · rules.test.js `[Ticket-03] đèn đã thắp nhận châm dầu…` |
+| Hết dầu → `lantern_out`, `deposited 0`, `ever_lit`; thắp lại 5 đom đóm, +40, `relight`; chưa từng sáng vẫn 10 | nhóm `hết dầu và thắp lại` |
+| Sức chứa `10 + 2×successful_lights` ≤ 20, nhặt theo sức chứa | nhóm `sức chứa tăng dần` · contract.test.js `người chơi ở (0,0,0)…` |
+| Vùng an toàn theo `fuel ≥ 30` (đúng 30 còn), đẩy ra khi châm lên ≥ 30, không sát thương | nhóm `vùng an toàn theo fuel ≥ 30` |
+| Bóng Mực `drain`: chọn đèn yếu, hút 5/s cộng dồn, `fuel_drain` mỗi 60 tick, các chuyển trạng thái, +15 điểm | nhóm `Bóng Mực drain` |
+| Thắng `dawn_survived` ≥ ceil(0.6×tổng), thua `dawn`, `no_flames` thắng ở tick bình minh, không thắng sớm, điểm bình minh | nhóm `luật thắng dawn_survived` |
+| Định dạng scenario v1.2 (mã thoát 2) | nhóm `định dạng scenario v1.2` |
+| Tuning/contract v1.2 | contract.test.js · nhóm `game.contract.json` |
+| Điểm +5/đom đóm nạp, thời lượng 240 s | rules.test.js · `nạp hết carried…`, `nạp nhiều lần…`, `điểm cộng dồn…`, `time_left_s = 240…` |
+
+Kiểm tra test có thể đỏ (Phase 3): đổi `fuel >= FUEL.low` thành `>` trong `hasZone` → `tests/fuel.test.js` đỏ (1 test); đã hoàn nguyên, 168/168 xanh.
+
 ## Kiểm tra test có thể đỏ (đột biến tay)
 15 đột biến luật/tuning (đổi `lantern_cost`, `pickup_radius`, bỏ cooldown, bỏ điều kiện stun/bất tử/vùng an toàn, bỏ cạnh nút, …), mỗi lần chạy `npm test`: **15/15 bị ít nhất 1 test bắt**. Lần đầu sót 1 (`per_stun` cho con đang choáng), đã thêm test rồi chạy lại.
 

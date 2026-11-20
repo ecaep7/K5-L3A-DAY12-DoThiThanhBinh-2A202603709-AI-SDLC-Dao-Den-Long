@@ -1,4 +1,4 @@
-# Đảo Đèn Lồng – Phase 2 (Contract v1.1)
+# Đảo Đèn Lồng – Phase 3 (Contract v1.2)
 
 ## Lệnh
 - Cài: `npm install`
@@ -8,7 +8,7 @@
 
 ## Cấu trúc
 - `src/sim/`: logic thuần, tất định. CẤM import three, CẤM `Math.random` và `Date`. Dùng PRNG có seed (`rng.js`).
-- `src/headless.js`: CLI đúng Test Contract v1.0 (docs/requirements/phase1-PRD-0.md, mục B–E).
+- `src/headless.js`: CLI đúng Test Contract (v1.0 → v1.2: docs/requirements/phase1-PRD-0.md mục B–E, phase3-ticket-03.md mục 7).
 - `web/`: Three.js + Vite, chỉ vẽ và đọc input, dùng lại `src/sim`.
 - `tests/`: node:test. Số tuning chỉ nằm ở `src/sim/tuning.js`, phải khớp `game.contract.json`.
 - Luật và giả định: docs/notes/assumptions.md (đổi luật thì sửa file này cùng lúc).
@@ -32,3 +32,10 @@
 - Thứ tự xử lý trong tick theo Phần 1 ticket (ghi lại ở assumptions.md).
 - Mỗi khối xong: `npm test` xanh rồi commit riêng. Kiểm chứng: skill `/verify` (.claude/skills/verify). Stop hook chạy `npm test` và chặn kết thúc khi đỏ.
 - Tag `phase-2` và push chỉ khi người dùng yêu cầu (lần này đã được yêu cầu).
+
+## Phạm vi Phase 3 (Ticket-03, docs/requirements/phase3-ticket-03.md)
+- Luật hiện hành: Ticket-03 thay một số luật Ticket-02 (nhiên liệu đèn, `drain`, thắng `dawn_survived`, sức chứa tăng dần, điểm mới, Đêm 240/270/300 s). Chi tiết: docs/notes/assumptions.md mục "Thay đổi Phase 3"; lý do: docs/adr/0001-lantern-fuel-and-win-rule.md; breaking changes và lý do sửa test: CHANGELOG.md.
+- Dầu đèn tính bằng **số nguyên 1/60** (`FUEL` trong `src/sim/tuning.js`); chỉ chia 60 và làm tròn khi xuất. Đừng dùng số thực cho dầu.
+- Test Phase 3 ở `tests/fuel.test.js`. Test cũ bị luật mới làm sai: sửa/xóa kèm lý do trong CHANGELOG.md, không skip.
+- Chưa làm (để sau): thanh dầu, nhấp nháy 1 Hz, chế độ mù màu, Đêm 2/3, Gió Lạc/Bùa Gió.
+- Tag `phase-3` và push: đã được yêu cầu trong docs/prompts/phase3.md.

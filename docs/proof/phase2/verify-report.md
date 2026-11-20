@@ -7,8 +7,8 @@ seed 1, ticks 3600
 XANH
 
 ```
-ℹ tests 127
-ℹ pass 127
+ℹ tests 168
+ℹ pass 168
 ℹ fail 0
 ℹ skipped 0
 ```

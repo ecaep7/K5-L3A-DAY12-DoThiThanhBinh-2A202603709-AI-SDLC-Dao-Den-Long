@@ -1,6 +1,6 @@
-# Giả định – Phase 1 + Phase 2 (K1)
+# Giả định – Phase 1 + Phase 2 (K1) + Phase 3 (Ticket-03)
 
-Phần dưới "Thay đổi Phase 2" mô tả luật hiện hành; các mục cũ của Phase 1 có chỗ đã bị thay (xem bảng thay đổi).
+Phần "Thay đổi Phase 2" rồi "Thay đổi Phase 3" (cuối file) mô tả luật hiện hành, mục sau thắng mục trước; các mục cũ của Phase 1 có chỗ đã bị thay (xem bảng thay đổi).
 
 ## Công nghệ
 - Node.js + Three.js (Vite) cho bản có giao diện. Logic game viết JS thuần, không phụ thuộc Three.js, để chạy headless bằng `node` trên macOS/Linux/Windows.
@@ -97,3 +97,34 @@ Luật hiện hành = Ticket-02 Phần 1–2 + các giả định bên dưới. 
 - **`night_start {night}`** ghi ở tick 1 (bước đầu tiên).
 - **Scenario mới:** `player.{invuln_ticks, dash_cd_ticks, pulse_cd_ticks, charm_ticks}`, `shades[].{state, state_ticks_left}`, `random_drifters`, `wind_enabled`, `drifters`, `charms` được kiểm định dạng. Ở phạm vi hiện tại (K1) `charm_ticks` chỉ được lưu/đếm lùi/ghi snapshot; hiệu lực Bùa Gió, Gió Lạc, gió mạnh thuộc K2–K3 (chưa làm).
 - **Phạm vi:** `--night 2|3` được CLI nhận nhưng thoát mã 1 ("chưa hỗ trợ") cho tới khi làm K2.
+
+## Thay đổi Phase 3 (Ticket-03, Contract v1.2)
+Luật hiện hành = Phase 2 + mục này. Mục này thắng mọi mục cũ (đặc biệt các dòng "Thắng: thắp đủ 5 đèn", "Vùng an toàn: chỉ đèn đã thắp" và phần "Điểm" ở trên). Lý do thiết kế: `docs/adr/0001-lantern-fuel-and-win-rule.md`; phá vỡ tương thích: `CHANGELOG.md`.
+
+### Luật
+- **Dầu:** đơn vị nguyên 1/60 (100 dầu = 6000). Thắp (lần đầu hoặc lại) → 100. Đèn sáng hao 1 đơn vị/tick. Xuất snapshot/sự kiện = dầu/60 làm tròn 1 chữ số thập phân; đèn tắt xuất `fuel: 0`.
+- **Châm dầu:** Tương tác ở đèn sáng: `used = min(mang, ceil((100−fuel)/10))`, `fuel = min(100, fuel + 10×used)`, +5 điểm/đom đóm. Sự kiện `refuel {lantern_id, amount, fuel}`. Đèn đầy dầu không được chọn.
+- **Chọn đèn:** trong `interact_radius`, đèn nhận được = chưa sáng, hoặc sáng với fuel < 100; gần nhất, hòa → id nhỏ hơn. Mang 0 thì không làm gì.
+- **Thắp:** đèn chưa sáng nạp dần (`deposited`); đủ `lantern_cost` (10) nếu chưa từng sáng, `relight_cost` (5) nếu `ever_lit`. `lantern_lit {lantern_id, relight}`; +100 (lần đầu) hoặc +40 (thắp lại); `relit_count++` khi thắp lại; `successful_lights++`.
+- **Hết dầu:** sau bước 2, đèn sáng có fuel ≤ 0 → `lit=false`, `fuel=0`, `deposited=0`, `ever_lit=true`, sự kiện `lantern_out {lantern_id}`.
+- **Vùng an toàn:** `lit && fuel ≥ 30` (so sánh trên đơn vị nguyên; đúng 30 còn). Bóng Mực trong vùng bị đẩy ra mép 0.2 m/tick (tối đa 30 tick) và không gây hại, kể cả khi vùng vừa xuất hiện do châm dầu lên ≥ 30.
+- **Bóng Mực `drain`:** chỉ `wander` chọn đèn yếu (sáng, fuel < 30) gần nhất (hòa → id nhỏ hơn) và đi tới đó ở tốc độ wander (2 m/s). `chase` không đổi mục tiêu. Cách đèn ≤ 2 m (XZ) → `drain`, đứng yên, hút 5 đơn vị dầu/tick = 5/s (cộng dồn), `fuel_drain {lantern_id, shade_id, fuel}` mỗi 60 tick hút (tick hút thứ 60, 120, …). Từ `drain`: Mây ≤ 6 m → `chase` (ưu tiên trước); trúng Tỏa Sáng → `stunned`; đèn tắt / fuel ≥ 30 / cách đèn > 2 m → `wander`.
+- **Thắng/thua (bước cuối của tick, sau mọi cập nhật):** hết Ngọn Lửa → thua `no_flames` (kể cả tick bình minh). Tới bình minh (`sim_tick ≥ endTick`): đèn sáng ≥ ceil(0.6 × tổng) (Đêm 1: 3/5) → thắng `dawn_survived`, ngược lại thua `dawn`. Không còn thắng sớm; `all_lit` không dùng.
+- **Thời lượng:** Đêm 1/2/3 = 240/270/300 s.
+- **Sức chứa:** `min(20, 10 + 2×successful_lights)`; chỉ thắp mới/thắp lại thành công mới +1; châm dầu và đèn đặt sẵn qua scenario thì không (trừ khi scenario đặt `player.successful_lights`). Mỗi ván một Đêm nên "đặt lại về 0 mỗi Đêm" = khởi tạo thế giới.
+- **Điểm:** +5 mỗi đom đóm nạp (thắp mới/thắp lại/châm dầu); +100 thắp lần đầu; +40 thắp lại; Tỏa Sáng trúng +5/con (+15 nếu con đó đang `drain` ngay trước khi trúng); bình minh thắng: mỗi đèn sáng +50 + floor(fuel), mỗi Ngọn Lửa còn +50. Bỏ thưởng giây còn lại.
+
+### Thứ tự trong tick (bổ sung cho Phase 2)
+Bước 2 giảm bộ đếm, thêm: hao dầu 1 đơn vị mỗi đèn sáng; mỗi Bóng Mực `drain` có đèn mục tiêu còn sáng hút 5 đơn vị (ghi `fuel_drain` nếu đủ 60 tick hút); rồi đèn fuel ≤ 0 tắt (`lantern_out`, theo thứ tự id). Bước 5 (Tương tác) chọn đèn nhận được. Bước 6 vùng an toàn dùng `lit && fuel ≥ 30`. Bước 7 Tỏa Sáng tính +15 theo trạng thái trước khi bị choáng. Bước 8 chuyển trạng thái `drain`/`wander`/`chase`. Bước 11 xét thắng/thua cuối cùng.
+
+### Giả định cho chỗ ticket mơ hồ
+- **"Về đèn tắt gần nhất như trước":** code Phase 2 không có hành vi đi tới đèn tắt (wander là điểm ngẫu nhiên), nên giữ wander ngẫu nhiên khi không có đèn yếu, để không phá test/đầu ra Phase 1–2.
+- **Đèn "đầy dầu":** vì hao dầu ở bước 2 chạy trước Tương tác ở bước 5, đèn sáng gần như luôn có fuel < 100 khi bấm → luôn dùng ≥ 1 đom đóm. Cài đúng công thức ticket; không thêm ngoại lệ.
+- **`deposited` khi thắp:** giữ bằng số đã nạp (10, hoặc 5 khi thắp lại, hoặc giá trị scenario); về 0 khi đèn tắt.
+- **Hết dầu và drain cùng tick:** hao và hút cùng trừ ở bước 2 trước khi xét ≤ 0; `fuel_drain` ghi trước `lantern_out`; dầu trong `fuel_drain` ghi `max(0, …)`.
+- **drain → chase** được ưu tiên hơn các chuyển về wander khi cả hai cùng thỏa.
+- **Đi tới đèn yếu:** dùng tốc độ wander 2 m/s (ticket không nêu).
+- **Hết choáng:** giữ `settle` của Phase 2 (về `chase` nếu Mây ≤ 12 m, không thì `wander`); không bao giờ về thẳng `drain`.
+- **Scenario:** `fuel` ∈ [0,100]; đèn `lit:false` luôn có fuel 0; `ever_lit` mặc định = `lit`, và `lit:true` luôn ép `ever_lit=true`. `shades[].target_lantern_id` chỉ có nghĩa với state `drain`; thiếu hoặc không phải đèn sáng → tự về `wander` ở bước 8. Snapshot không xuất `target_lantern_id`.
+- **Tick bình minh:** `endTick = round(time_left_s × 60)` như Phase 2.
+- **Giao diện:** thanh dầu, nhấp nháy 1 Hz, chế độ mù màu chưa làm (để sau); HUD chỉ được vá để hiện "mang/sức chứa" và lý do `dawn_survived`.
