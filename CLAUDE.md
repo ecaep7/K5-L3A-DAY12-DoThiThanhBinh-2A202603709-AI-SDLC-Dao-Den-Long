@@ -1,4 +1,4 @@
-# Đảo Đèn Lồng – Phase 1
+# Đảo Đèn Lồng – Phase 2 (Contract v1.1)
 
 ## Lệnh
 - Cài: `npm install`
@@ -25,3 +25,10 @@
 - Làm headless + test trước, giao diện sau.
 - Phần sáng tạo không được đổi output headless (tắt khi headless).
 - Không commit/tag `phase-1` khi chưa được người dùng đồng ý.
+
+## Phạm vi Phase 2 (Ticket-02, docs/requirements/phase2-ticket-02.md)
+- Phạm vi đã chốt: chỉ K0 (harness) + K1 (số chuẩn, Contract v1.1, Đêm 1). K2–K5 (Đêm 2/3, Gió Lạc/Bùa Gió, hiệu năng, giao diện mới) để sau; đừng làm khi chưa được yêu cầu.
+- Số chuẩn Phần 1 của ticket thay mọi số tự chọn Phase 1. Test Phase 1 sai vì số mới: sửa kỳ vọng và ghi lý do ở docs/notes/assumptions.md mục "Thay đổi Phase 2"; không xóa/skip test âm thầm.
+- Thứ tự xử lý trong tick theo Phần 1 ticket (ghi lại ở assumptions.md).
+- Mỗi khối xong: `npm test` xanh rồi commit riêng. Kiểm chứng: skill `/verify` (.claude/skills/verify). Stop hook chạy `npm test` và chặn kết thúc khi đỏ.
+- Tag `phase-2` và push chỉ khi người dùng yêu cầu (lần này đã được yêu cầu).
