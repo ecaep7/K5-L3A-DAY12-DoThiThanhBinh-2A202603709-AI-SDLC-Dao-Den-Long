@@ -18,6 +18,18 @@ export function createHud(h) {
   $('restart').addEventListener('click', h.restart);
   $('next').addEventListener('click', h.next);
   $('tomenu').addEventListener('click', h.menu);
+  $('p-resume').addEventListener('click', h.resume);
+  $('p-restart').addEventListener('click', h.pauseRestart);
+  $('p-menu').addEventListener('click', h.menu);
+  const s = h.settings;
+  for (const [id, key] of [['vol', 'volume'], ['sens', 'sens']]) {
+    const el = $(id);
+    el.value = s.get()[key];
+    $(`${id}-v`).textContent = `${el.value}%`;
+    el.addEventListener('input', () => { $(`${id}-v`).textContent = `${el.value}%`; s.set(key, Number(el.value)); });
+  }
+  $('p-settings').addEventListener('click', () => { $('settings').style.display = 'flex'; });
+  $('s-done').addEventListener('click', () => { $('settings').style.display = 'none'; });
   for (const b of document.querySelectorAll('#menu button')) b.addEventListener('click', () => h.start(b.dataset.start));
   addEventListener('keydown', (e) => { if (e.code === 'Enter' && $('end').style.display === 'flex') h.restart(); });
 
@@ -31,6 +43,7 @@ export function createHud(h) {
 
   return {
     toast,
+    showPause(on) { $('pause').style.display = on ? 'flex' : 'none'; },
     showMenu(on) { $('menu').style.display = on ? 'flex' : 'none'; },
     onEvents(events) {
       for (const e of events) {

@@ -8,6 +8,7 @@ export function createInput(target) {
   const held = new Set();
   const latch = { jump: false, interact: false, pulse: false, dash: false };
   let yaw = 0; // độ
+  let sens = 1; // độ nhạy chuột (nhân với 0.4 độ/px)
 
   const actionOf = (code) => Object.keys(KEYS).find((a) => KEYS[a].includes(code));
   window.addEventListener('keydown', (e) => {
@@ -20,7 +21,7 @@ export function createInput(target) {
   window.addEventListener('keyup', (e) => held.delete(e.code));
   window.addEventListener('blur', () => held.clear());
   target.addEventListener('pointermove', (e) => {
-    if (e.buttons & 1) yaw -= e.movementX * 0.4;
+    if (e.buttons & 1) yaw -= e.movementX * 0.4 * sens;
   });
 
   const isHeld = (a) => KEYS[a].some((k) => held.has(k));
@@ -37,6 +38,7 @@ export function createInput(target) {
         dash: isHeld('dash') || latch.dash,
       };
     },
+    setSensitivity(v) { sens = v; },
     afterStep() { latch.jump = latch.interact = latch.pulse = latch.dash = false; },
     get yaw() { return yaw; },
   };

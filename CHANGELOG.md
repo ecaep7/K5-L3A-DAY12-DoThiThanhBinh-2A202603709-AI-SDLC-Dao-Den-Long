@@ -11,6 +11,7 @@ Không đổi luật, số liệu hay output headless (tất cả test Phase 1�
 - Gió Lạc và Bùa Gió (K3 Phase 2) trong sim: `drifters`/`charms` trong snapshot (trước đây luôn `[]`), sự kiện `drifter_spawned`, `drifter_steal`, `drifter_drop`, `charm_picked`; scenario `drifters`/`charms` có kiểm định dạng (mã thoát 2); `tests/drifters.test.js`. Test `nights` · cầu: thêm `charms: []` vì bùa mặc định (35,0,0) nằm trên cầu và đổi tốc độ.
 - Giao diện web: menu chọn Đêm/chuỗi 1→2→3, màn kết quả (Đêm kế/chơi lại Đêm/menu, Bình Minh + tổng điểm), địa hình Đêm 2/3, thanh dầu, đồng hồ đỏ ≤ 30 s, vẽ Gió Lạc và Bùa Gió. `web/render.js` thêm `setNight`. Không đổi sim/headless.
 - Làm đẹp web theo Ticket-02: bảng màu chuẩn, ánh sáng môi trường theo tiến độ, HUD đúng bố cục (thanh đom đóm 10 ô, hồi chiêu, nhắc E, mũi tên đèn), chữ UI ≥ 18 px; thêm phím Q = lướt. Không đổi sim/headless.
+- Web: tạm dừng Esc/P (dừng hẳn logic) với menu Tiếp tục/Chơi lại Đêm/Cài đặt/Về menu; cài đặt âm lượng + độ nhạy chuột lưu localStorage; âm thanh WebAudio tự sinh (`web/audio.js`). Không đổi sim/headless.
 - Chưa làm (xem README mục "Chưa đạt"): bảng xếp hạng, accessibility, âm thanh, tạm dừng, cài đặt.
 
 ## Phase 3 — Ticket-03 "Đèn cạn dầu" (Contract v1.2)

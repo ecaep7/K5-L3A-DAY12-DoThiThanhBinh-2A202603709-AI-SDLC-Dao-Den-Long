@@ -31,8 +31,11 @@ Tạo lại bản web tĩnh: `npm run build:web` (ra thư mục `dist/`).
 | Q | lướt (thêm để HUD có biểu tượng hồi chiêu Lướt dùng được) |
 | kéo chuột trái | xoay camera |
 | Enter | chơi lại khi ván kết thúc |
+| Esc hoặc P | tạm dừng (Tiếp tục / Chơi lại Đêm / Cài đặt / Về menu) |
 
 Menu chính: chơi chuỗi 3 Đêm (1→2→3, hiện tổng điểm và màn Bình Minh khi thắng Đêm 3) hoặc chọn riêng từng Đêm. Cuối Đêm có màn kết quả: Đêm kế tiếp (trong chuỗi) / Chơi lại Đêm / Về menu. Lướt và tạm dừng có trong luật (headless) nhưng chưa có phím trong giao diện, xem "Chưa đạt".
+
+Tạm dừng dừng hẳn logic (không bước sim). Cài đặt (âm lượng, độ nhạy chuột) lưu bằng localStorage. Âm thanh tự sinh bằng WebAudio (nhạc nền nhẹ; hiệu ứng nhặt, thắp đèn, tỏa sáng, bị đánh, nhảy, lướt, thắng, thua, Bóng Mực xuất hiện, tích tắc 10 s cuối), bật sau cú nhấp đầu tiên.
 
 Giao diện theo Ticket-02: bảng màu chuẩn (trời #0E1430, sương #1B2350, cỏ #2F5D50, cát #C9B48A, gỗ #6B4A2F, biển mây #12384A, đèn #FFB347/#FFE9B0/#5B5F6E, đom đóm #FFF6C2/#FFE58A, Bóng Mực #120A1A/#7A3CFF/#3A3450, áo #E8E2D0, khăn #C8102E, Gió Lạc #8FA3B8, chữ UI #F5F1E6), ánh sáng môi trường = 0.15 + 0.55 × (đèn sáng/tổng đèn). HUD: Ngọn Lửa trên trái; đồng hồ mm:ss trên giữa; đèn k/n và điểm trên phải; thanh đom đóm 10 ô dưới giữa; hồi chiêu Lướt/Tỏa Sáng dưới phải; nhắc "E — Nạp ánh sáng (x/10)" khi đứng gần đèn; mũi tên tới đèn chưa sáng gần nhất khi nó ngoài màn hình. Chữ UI ≥ 18 px ở 1280×720 (kiểm bằng script: không còn phần tử HUD nào dưới 18 px). Thêm: thanh dầu trên đèn đang sáng (đỏ và nhấp nháy 1 Hz khi fuel < 30), đồng hồ đổi đỏ khi còn ≤ 30 s, vẽ Gió Lạc (dải xám xanh) và Bùa Gió (lá bùa đỏ viền vàng). Ảnh: `docs/proof/ui-night2.png`, `ui-night3.png`, `ui2-prompt.png`, `ui2-arrow.png`. Màu lệch nhẹ so với mã hex vì chịu ánh sáng 3D (vật liệu dùng đúng mã hex gốc). Chưa làm: tùy chọn chữ lớn ×1.25, ô "Đom đóm" xếp theo tỉ lệ sức chứa khi sức chứa > 10 (mỗi ô = sức chứa/10).
 
@@ -72,12 +75,13 @@ Chạy 10 Đêm liên tiếp trong một tiến trình, xoay vòng Đêm 1 → 2
 Phần chưa làm, nói thẳng:
 - **Đêm 2 và Đêm 3**: đã có trong sim và headless (bản đồ, cầu, tầng, dốc, bục nhảy, tháp chuông, gió mạnh, Bóng Mực 4.5 m/s Đêm 3), và chơi được trong giao diện web. Phần giao diện này chưa có test tự động (chỉ kiểm bằng trình duyệt thật: menu, chuyển Đêm, kết quả; xem ảnh). Test tự động chỉ là scenario (`tests/nights.test.js`); tầng/vách của Bóng Mực được đơn giản hóa (Bóng Mực không bị vách chặn, chỉ bám độ cao mặt đất); điểm xuất phát Đêm 2/3 không có trong ticket (tự chọn: (0,0,0) và (0,0,-20)); sự kiện `jump_pad`, `wind_warning/start/end` do tôi đặt tên.
 - **Soak không đạt ngưỡng bộ nhớ**: `soak.json` hiện có `mem_end_mb` 44.9 > 1.2 × `mem_start_mb` 36.1 (tỉ lệ 1.24, chạy lại 5 lần đều 1.23–1.25). Đã tìm nguyên nhân: đây không phải dữ liệu Đêm trước còn bị giữ. Heap JS sau GC chỉ tăng ~0.4 MB qua 10 Đêm (và phẳng qua 200 Đêm); RSS nhảy ~10 MB ngay trong Đêm đầu tiên rồi dao động quanh mức đó. Với `node --jitless`, RSS 30.9 → 32.3 MB (+4%), nên phần tăng là bộ nhớ mã JIT/bộ cấp phát khi nóng máy. Giữ nguyên cách đo (`mem_start_mb` sau khi dựng Đêm đầu), nên ghi là chưa đạt.
-- **Gió Lạc và Bùa Gió**: có trong sim + headless (Đêm 2, 3; `tests/drifters.test.js`) và đã vẽ trong web (hình khối đơn giản, thông báo chữ). Chưa có âm thanh, tạm dừng, cài đặt, mũi tên chỉ đèn, thanh đom đóm 10 ô, lá bay báo gió, màn giới thiệu Đêm có lời Ông Đăng. Gió Lạc idle lượn đến điểm ngẫu nhiên (tự chọn); sự kiện `drifter_spawned` do tôi đặt; Tỏa Sáng không cho điểm khi trúng Gió Lạc.
+- **Gió Lạc và Bùa Gió**: có trong sim + headless (Đêm 2, 3; `tests/drifters.test.js`) và đã vẽ trong web (hình khối đơn giản, thông báo chữ). Chưa có lá bay báo gió (chỉ có thông báo chữ), màn giới thiệu Đêm có lời Ông Đăng. Âm thanh chưa được nghe thử bằng tai: tôi chỉ kiểm bằng trình duyệt rằng AudioContext tạo được và không có lỗi; chất lượng âm chưa đánh giá. Gió Lạc idle lượn đến điểm ngẫu nhiên (tự chọn); sự kiện `drifter_spawned` do tôi đặt; Tỏa Sáng không cho điểm khi trúng Gió Lạc.
 - **Bảng xếp hạng cục bộ** (mục 3), lệnh `--export-leaderboard`: chưa làm.
 - **Dễ tiếp cận** (mục 4): đổi phím, phụ đề/mũi tên chỉ báo, giảm chuyển động, chữ lớn ×1.25: chưa làm. Cũng chưa có phím lướt/tạm dừng và chế độ mù màu.
 - **Hiệu năng**: trên máy tác giả `p1_low_fps` = 30, chỉ vừa chạm ngưỡng 30; chưa tối ưu. Số chấm chính thức là của máy giảng viên.
 - **Bench**: `peak_mem_mb` = null (xem trên). Hai lần chạy đầu tiên bị đóng trình duyệt giữa chừng (chưa rõ nguyên nhân), lần thứ ba xong; chưa xử lý tự thử lại.
 - **Soak**: `results` toàn `lost` vì input ngẫu nhiên không thắp đèn có chủ đích; chạy 200 Đêm cho thấy heap phẳng (không rò) nhưng RSS tăng nhẹ theo bộ cấp phát.
+- **Âm thanh**: không có nhạc nền/hiệu ứng thật (không có file), chỉ âm tổng hợp đơn giản; không có hiệu ứng riêng cho Gió Lạc rơi/gió thổi; không có test tự động cho âm thanh, tạm dừng và cài đặt.
 - **Retro, video demo .mp4, GitHub Release v1.0.0**: chưa làm (tác giả tự làm; tag `phase-4` cũng do tác giả).
 - Bản chạy được cho Release: có file zip web tĩnh ở `release/` (không commit), kèm hướng dẫn ở trên.
 - Chưa kiểm tra trên macOS/Linux sạch; các lệnh cài chỉ đã chạy trên Windows.

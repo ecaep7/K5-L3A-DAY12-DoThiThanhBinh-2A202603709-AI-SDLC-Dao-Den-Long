@@ -68,6 +68,15 @@ Bảng luật → test đầy đủ (15 mục, kèm tên nhóm test) ở `docs/n
 | Chữ lớn ×1.25 (tùy chọn) | **Chưa đạt** | không nằm trong yêu cầu lần này |
 Thêm ngoài ticket (để biểu tượng Lướt dùng được): phím Q = lướt. Không có test tự động cho giao diện.
 
+## Tạm dừng, cài đặt, âm thanh (Ticket-02 Phần 3, web)
+| Yêu cầu | Trạng thái | Bằng chứng |
+|---|---|---|
+| Tạm dừng Esc/P, logic dừng hoàn toàn | Đạt | Playwright: `simTick` 51 → 51 sau 1.5 s tạm dừng, chạy tiếp sau khi tiếp tục; ảnh `docs/proof/ui3-pause.png` |
+| Menu Tiếp tục / Chơi lại Đêm / Cài đặt / Về menu | Đạt | `web/index.html`, `web/main.js`; nút được bấm trong Playwright (Cài đặt, Xong); Chơi lại/Về menu chưa bấm thử riêng |
+| Cài đặt âm lượng + độ nhạy chuột, lưu giữa các lần mở | Đạt | localStorage `ddl-settings` `{"volume":30,"sens":150}` còn nguyên sau khi tải lại trang; ảnh `ui3-settings.png` |
+| Âm thanh: nhạc nền + 10 hiệu ứng (nhặt, thắp, tỏa sáng, bị đánh, nhảy, lướt, thắng, thua, Bóng Mực xuất hiện, đếm ngược 10 s) | Có mã, **chưa nghe thử** | `web/audio.js`; chỉ kiểm không lỗi JS và `AudioContext` tồn tại; không có test tự động |
+Không có test tự động cho phần này; sim/headless không đổi (196 test xanh).
+
 ## Phase 4 – Ticket-04, Contract v1.3
 | Yêu cầu | Trạng thái | Bằng chứng |
 |---|---|---|
