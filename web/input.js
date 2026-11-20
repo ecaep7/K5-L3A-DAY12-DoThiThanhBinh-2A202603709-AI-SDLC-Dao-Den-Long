@@ -1,12 +1,12 @@
 // Bàn phím + chuột → trạng thái input GIỮ cho sim. Nút bấm nhanh được "chốt" tới hết 1 bước sim.
 const KEYS = {
   up: ['KeyW', 'ArrowUp'], down: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
-  jump: ['Space'], interact: ['KeyE'], pulse: ['KeyF', 'ShiftLeft'],
+  jump: ['Space'], interact: ['KeyE'], pulse: ['KeyF', 'ShiftLeft'], dash: ['KeyQ'],
 };
 
 export function createInput(target) {
   const held = new Set();
-  const latch = { jump: false, interact: false, pulse: false };
+  const latch = { jump: false, interact: false, pulse: false, dash: false };
   let yaw = 0; // độ
 
   const actionOf = (code) => Object.keys(KEYS).find((a) => KEYS[a].includes(code));
@@ -34,9 +34,10 @@ export function createInput(target) {
         jump: isHeld('jump') || latch.jump,
         interact: isHeld('interact') || latch.interact,
         pulse: isHeld('pulse') || latch.pulse,
+        dash: isHeld('dash') || latch.dash,
       };
     },
-    afterStep() { latch.jump = latch.interact = latch.pulse = false; },
+    afterStep() { latch.jump = latch.interact = latch.pulse = latch.dash = false; },
     get yaw() { return yaw; },
   };
 }

@@ -57,6 +57,17 @@ Bảng luật → test đầy đủ (15 mục, kèm tên nhóm test) ở `docs/n
 ## Giao diện web Phase 4
 - Chơi 3 Đêm, thanh dầu (nhấp nháy khi fuel < 30), đồng hồ đỏ khi ≤ 30 s, Gió Lạc/Bùa Gió, địa hình Đêm 2/3. Kiểm bằng Chrome thật (Playwright): menu → từng Đêm → ép thắng → "Đêm kế tiếp" → ép thua, không lỗi JS (chỉ 1 lỗi tải tài nguyên 404 chưa rõ, có thể favicon). Chưa kiểm bằng mắt thanh dầu nhấp nháy và đồng hồ đỏ khi chơi thật.
 
+## Làm đẹp giao diện (Ticket-02 Phần 3 + Ticket-04 mục 4 cỡ chữ)
+| Yêu cầu | Trạng thái | Bằng chứng |
+|---|---|---|
+| Bảng màu chuẩn (trời, sương, cỏ, cát, gỗ, biển mây, đèn, đom đóm, Bóng Mực, áo/khăn, Gió Lạc, chữ UI) | Đạt ở mã màu (`PAL` trong `web/render.js`, biến CSS trong `web/index.html`) | ảnh `docs/proof/ui2-*.png`; màu nhìn thấy lệch do ánh sáng 3D, chưa đo từng kênh RGB trên ảnh |
+| Ánh sáng môi trường 0.15 + 0.55 × (sáng/tổng) | Đạt | `hemi.intensity` trong `web/render.js`; chưa có test tự động |
+| HUD: Lửa trái, đồng hồ giữa, đèn+điểm phải, thanh 10 ô, hồi chiêu phải dưới, nhắc E, mũi tên đèn ngoài màn hình | Đạt | ảnh `ui2-prompt.png`, `ui2-arrow.png`; kiểm DOM bằng Playwright (nhắc \"E — Nạp ánh sáng (3/10)\", mũi tên hiện khi đèn ở sau camera) |
+| Đồng hồ đỏ nhấp nháy ≤ 30 s | Đạt | kiểm class `red` bằng Playwright |
+| Chữ UI ≥ 18 px ở 1280×720 | Đạt | script: 0 phần tử HUD < 18 px (menu và HUD) |
+| Chữ lớn ×1.25 (tùy chọn) | **Chưa đạt** | không nằm trong yêu cầu lần này |
+Thêm ngoài ticket (để biểu tượng Lướt dùng được): phím Q = lướt. Không có test tự động cho giao diện.
+
 ## Phase 4 – Ticket-04, Contract v1.3
 | Yêu cầu | Trạng thái | Bằng chứng |
 |---|---|---|

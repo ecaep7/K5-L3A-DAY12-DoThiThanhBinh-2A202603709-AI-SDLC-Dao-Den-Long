@@ -28,12 +28,13 @@ Tạo lại bản web tĩnh: `npm run build:web` (ra thư mục `dist/`).
 | Space | nhảy |
 | E | tương tác: nạp đom đóm vào đèn gần (trong 2 m) để thắp hoặc châm dầu |
 | F hoặc Shift trái | tỏa sáng (tốn 3 đom đóm) |
+| Q | lướt (thêm để HUD có biểu tượng hồi chiêu Lướt dùng được) |
 | kéo chuột trái | xoay camera |
 | Enter | chơi lại khi ván kết thúc |
 
 Menu chính: chơi chuỗi 3 Đêm (1→2→3, hiện tổng điểm và màn Bình Minh khi thắng Đêm 3) hoặc chọn riêng từng Đêm. Cuối Đêm có màn kết quả: Đêm kế tiếp (trong chuỗi) / Chơi lại Đêm / Về menu. Lướt và tạm dừng có trong luật (headless) nhưng chưa có phím trong giao diện, xem "Chưa đạt".
 
-Giao diện: thanh dầu trên đèn đang sáng (đỏ và nhấp nháy 1 Hz khi fuel < 30), đồng hồ đổi đỏ khi còn ≤ 30 s, vẽ Gió Lạc (dải xám xanh) và Bùa Gió (lá bùa đỏ viền vàng). Ảnh: `docs/proof/ui-night2.png`, `ui-night3.png`.
+Giao diện theo Ticket-02: bảng màu chuẩn (trời #0E1430, sương #1B2350, cỏ #2F5D50, cát #C9B48A, gỗ #6B4A2F, biển mây #12384A, đèn #FFB347/#FFE9B0/#5B5F6E, đom đóm #FFF6C2/#FFE58A, Bóng Mực #120A1A/#7A3CFF/#3A3450, áo #E8E2D0, khăn #C8102E, Gió Lạc #8FA3B8, chữ UI #F5F1E6), ánh sáng môi trường = 0.15 + 0.55 × (đèn sáng/tổng đèn). HUD: Ngọn Lửa trên trái; đồng hồ mm:ss trên giữa; đèn k/n và điểm trên phải; thanh đom đóm 10 ô dưới giữa; hồi chiêu Lướt/Tỏa Sáng dưới phải; nhắc "E — Nạp ánh sáng (x/10)" khi đứng gần đèn; mũi tên tới đèn chưa sáng gần nhất khi nó ngoài màn hình. Chữ UI ≥ 18 px ở 1280×720 (kiểm bằng script: không còn phần tử HUD nào dưới 18 px). Thêm: thanh dầu trên đèn đang sáng (đỏ và nhấp nháy 1 Hz khi fuel < 30), đồng hồ đổi đỏ khi còn ≤ 30 s, vẽ Gió Lạc (dải xám xanh) và Bùa Gió (lá bùa đỏ viền vàng). Ảnh: `docs/proof/ui-night2.png`, `ui-night3.png`, `ui2-prompt.png`, `ui2-arrow.png`. Màu lệch nhẹ so với mã hex vì chịu ánh sáng 3D (vật liệu dùng đúng mã hex gốc). Chưa làm: tùy chọn chữ lớn ×1.25, ô "Đom đóm" xếp theo tỉ lệ sức chứa khi sức chứa > 10 (mỗi ô = sức chứa/10).
 
 ## Luật tóm tắt (Contract v1.2)
 Đèn thắp cần 10 đom đóm (thắp lại sau khi cạn: 5). Đèn sáng có dầu 0–100, hao 1/s; hết dầu thì tắt. Chỉ đèn có dầu ≥ 30 mới tạo vùng an toàn 6 m. Bóng Mực đi tới đèn yếu để hút dầu 5/s. Hết giờ mà Mây còn sống và có ≥ 60% đèn sáng thì thắng (`dawn_survived`). Bị chạm: mất 1 lửa (có 3). Chi tiết: `docs/notes/assumptions.md`, lý do đổi luật: `docs/adr/0001-lantern-fuel-and-win-rule.md`.

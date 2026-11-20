@@ -2,7 +2,14 @@
 import * as THREE from 'three';
 import { TUNING, WORLD } from '../src/sim/index.js';
 
-const WARM = 0xffb347;
+// Bảng màu chuẩn Ticket-02 Phần 3
+const PAL = {
+  sky: 0x0e1430, mist: 0x1b2350, grass: 0x2f5d50, sand: 0xc9b48a, wood: 0x6b4a2f, sea: 0x12384a,
+  lampOn: 0xffb347, lampCore: 0xffe9b0, lampOff: 0x5b5f6e, moteCore: 0xfff6c2, moteHalo: 0xffe58a,
+  shade: 0x120a1a, shadeRim: 0x7a3cff, shadeStun: 0x3a3450, cloak: 0xe8e2d0, scarf: 0xc8102e,
+  gold: 0xf2c14e, drifter: 0x8fa3b8, danger: 0xff5a5f,
+};
+const WARM = PAL.lampOn;
 const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.85, ...extra });
 
 export function createRenderer(canvasParent) {
@@ -11,11 +18,11 @@ export function createRenderer(canvasParent) {
   canvasParent.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x120c22);
-  scene.fog = new THREE.FogExp2(0x1d1236, 0.014);
+  scene.background = new THREE.Color(PAL.sky);
+  scene.fog = new THREE.FogExp2(PAL.mist, 0.012);
   const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 300);
 
-  const hemi = new THREE.HemisphereLight(0x8a7ac8, 0x2a1a48, 0.6);
+  const hemi = new THREE.HemisphereLight(0xffffff, PAL.mist, 0.15);
   scene.add(hemi);
   const moon = new THREE.DirectionalLight(0xaab0ff, 0.7);
   moon.position.set(-20, 40, -10);
@@ -25,43 +32,45 @@ export function createRenderer(canvasParent) {
   const terrain = new THREE.Group();
   scene.add(terrain);
   const addT = (m) => { terrain.add(m); return m; };
-  function disc(cx, r, color = 0x54456f) {
-    const m = addT(new THREE.Mesh(new THREE.CylinderGeometry(r, r - 3, 3, 64), mat(color)));
+  const grassM = mat(PAL.grass);
+  const sandM = mat(PAL.sand);
+  function disc(cx, r) {
+    const m = addT(new THREE.Mesh(new THREE.CylinderGeometry(r, r - 3, 3, 64), [sandM, grassM, sandM]));
     m.position.set(cx, -1.5, 0);
   }
   function padMesh(pos) {
-    const m = addT(new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 0.12, 24), mat(0xf2c14e, { emissive: 0x7a5a10 })));
+    const m = addT(new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 0.12, 24), mat(PAL.gold, { emissive: 0x7a5a10 })));
     m.position.set(pos[0], pos[1] + 0.06, pos[2]);
   }
   function buildTerrain(map) {
     terrain.clear();
-    const sea = addT(new THREE.Mesh(new THREE.CircleGeometry(220, 48), mat(0x2a2150, { emissive: 0x100a24 })));
+    const sea = addT(new THREE.Mesh(new THREE.CircleGeometry(220, 48), mat(PAL.sea, { emissive: 0x06141c })));
     sea.rotation.x = -Math.PI / 2;
     sea.position.set(map.night === 2 ? 35 : 0, -6, 0);
     const cx = map.night === 2 ? [0, 70] : [0];
     const R = map.night === 2 ? 28 : map.night === 3 ? 45 : WORLD.island_radius;
     for (const x of cx) disc(x, R);
     if (map.night === 2) {
-      const br = addT(new THREE.Mesh(new THREE.BoxGeometry(18, 0.3, 4), mat(0x6b4a2f)));
+      const br = addT(new THREE.Mesh(new THREE.BoxGeometry(18, 0.3, 4), mat(PAL.wood)));
       br.position.set(35, -0.15, 0);
     }
     if (map.night === 3) {
       const sh = new THREE.Shape();
       sh.absarc(0, 0, 24, 0, Math.PI, false);
       sh.absarc(0, 0, 12, Math.PI, 0, true);
-      const t1 = addT(new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 3, bevelEnabled: false, curveSegments: 32 }), mat(0x6a5a8a)));
+      const t1 = addT(new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 3, bevelEnabled: false, curveSegments: 32 }), [grassM, sandM]));
       t1.rotation.x = Math.PI / 2;
       t1.position.y = 3;
-      const t2 = addT(new THREE.Mesh(new THREE.CylinderGeometry(8, 8, 6, 40), mat(0x7a6aa0)));
+      const t2 = addT(new THREE.Mesh(new THREE.CylinderGeometry(8, 8, 6, 40), [sandM, grassM, sandM]));
       t2.position.y = 3;
-      const tw = addT(new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 8, 20), mat(0x6b4a2f)));
+      const tw = addT(new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 8, 20), mat(PAL.wood)));
       tw.position.y = 10;
       for (const deg of [30, 150]) {
         const a = (deg * Math.PI) / 180;
         const g = new THREE.Group();
         g.position.set(27 * Math.cos(a), 1.5, 27 * Math.sin(a));
         g.rotation.y = -a;
-        const ramp = new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(6, 3), 0.2, 3), mat(0x8a6a3f));
+        const ramp = new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(6, 3), 0.2, 3), mat(PAL.wood));
         ramp.rotation.z = -Math.atan2(3, 6);
         g.add(ramp);
         addT(g);
@@ -71,7 +80,7 @@ export function createRenderer(canvasParent) {
     if (map.night === 1) {
       for (let i = 0; i < 26; i++) {
         const a = (i / 26) * Math.PI * 2;
-        const puff = addT(new THREE.Mesh(new THREE.SphereGeometry(5 + (i % 4) * 1.6, 12, 8), mat(0x4b3f7c, { emissive: 0x150e2c })));
+        const puff = addT(new THREE.Mesh(new THREE.SphereGeometry(5 + (i % 4) * 1.6, 12, 8), mat(PAL.sea, { emissive: 0x06141c })));
         puff.position.set(Math.cos(a) * (46 + (i % 3) * 5), -4.5, Math.sin(a) * (46 + (i % 3) * 5));
         puff.scale.y = 0.45;
       }
@@ -82,9 +91,9 @@ export function createRenderer(canvasParent) {
   const lanternViews = new Map();
   function makeLantern() {
     const g = new THREE.Group();
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 3.2, 8), mat(0x6b4a2b));
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 3.2, 8), mat(PAL.wood));
     pole.position.y = 1.6;
-    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.95, 16, 12), mat(0x55402e, { emissive: 0x000000 }));
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.95, 16, 12), mat(PAL.lampOff, { emissive: 0x000000 }));
     lamp.position.y = 3.7;
     lamp.scale.y = 1.2;
     const light = new THREE.PointLight(WARM, 0, 32, 1.4);
@@ -113,10 +122,14 @@ export function createRenderer(canvasParent) {
 
   // người chơi: Mây đội nón lá, xách đèn lồng nhỏ
   const player = new THREE.Group();
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 0.95, 16), mat(0xf4efe6));
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 0.95, 16), mat(PAL.cloak));
   body.position.y = 0.48;
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 12), mat(0xffe3c4));
   head.position.y = 1.15;
+  const scarf = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.09, 8, 20), mat(PAL.scarf));
+  scarf.rotation.x = Math.PI / 2;
+  scarf.position.y = 0.92;
+  player.add(scarf);
   const hat = new THREE.Mesh(new THREE.ConeGeometry(0.75, 0.45, 20), mat(0xd9b36c));
   hat.position.y = 1.55;
   const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), mat(0xff9d2e, { emissive: 0xff8a1f, emissiveIntensity: 1.4 }));
@@ -129,12 +142,14 @@ export function createRenderer(canvasParent) {
 
   // đom đóm, Bóng Mực
   const moteGeo = new THREE.SphereGeometry(0.16, 8, 6);
-  const moteMat = new THREE.MeshBasicMaterial({ color: 0xffe27a });
+  const moteMat = new THREE.MeshBasicMaterial({ color: PAL.moteCore });
+  const haloGeo = new THREE.SphereGeometry(0.34, 10, 8);
+  const haloMat = new THREE.MeshBasicMaterial({ color: PAL.moteHalo, transparent: true, opacity: 0.35, depthWrite: false });
   const moteViews = new Map();
   const shadeViews = new Map();
   function makeShade() {
     const g = new THREE.Group();
-    const m = new THREE.Mesh(new THREE.SphereGeometry(0.85, 16, 12), mat(0x1c0b30, { emissive: 0x3a1266, emissiveIntensity: 0.9 }));
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.85, 16, 12), mat(PAL.shade, { emissive: PAL.shadeRim, emissiveIntensity: 0.35 }));
     const eyeM = new THREE.MeshBasicMaterial({ color: 0xf5e9ff });
     for (const s of [-0.28, 0.28]) {
       const e = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 6), eyeM);
@@ -149,14 +164,14 @@ export function createRenderer(canvasParent) {
   const driftViews = new Map();
   const charmViews = new Map();
   function makeDrifter() {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 0.7), new THREE.MeshBasicMaterial({ color: 0x8fa3b8, transparent: true, opacity: 0.9 }));
+    const m = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 0.7), new THREE.MeshBasicMaterial({ color: PAL.drifter, transparent: true, opacity: 0.9 }));
     scene.add(m);
     return m;
   }
   function makeCharm() {
     const g = new THREE.Group();
-    g.add(new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.9, 0.06), new THREE.MeshBasicMaterial({ color: 0xf2c14e })));
-    const red = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.78, 0.08), new THREE.MeshBasicMaterial({ color: 0xc8102e }));
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.9, 0.06), new THREE.MeshBasicMaterial({ color: PAL.gold })));
+    const red = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.78, 0.08), new THREE.MeshBasicMaterial({ color: PAL.scarf }));
     g.add(red);
     scene.add(g);
     return g;
@@ -190,6 +205,13 @@ export function createRenderer(canvasParent) {
   let t = 0;
   return {
     domElement: renderer.domElement,
+    // Chiếu điểm thế giới ra tọa độ màn hình chuẩn hóa [-1,1]; behind = nằm sau camera
+    project(pos) {
+      const v = new THREE.Vector3(pos[0], pos[1] + 3, pos[2]);
+      const behind = v.clone().applyMatrix4(camera.matrixWorldInverse).z > 0;
+      v.project(camera);
+      return { x: v.x, y: v.y, behind };
+    },
     setNight(map) {
       buildTerrain(map);
       for (const v of lanterns_clear()) scene.remove(v);
@@ -203,13 +225,13 @@ export function createRenderer(canvasParent) {
 
       // đèn lớn + ánh sáng của đảo tăng dần theo số đèn đã thắp
       const litCount = world.lanterns.filter((l) => l.lit).length;
-      hemi.intensity = 0.6 + 0.16 * litCount;
-      scene.fog.color.setRGB(0.11 + 0.04 * litCount, 0.07 + 0.025 * litCount, 0.21);
+      hemi.intensity = 0.15 + 0.55 * (litCount / Math.max(1, world.lanterns.length)); // ánh sáng môi trường theo tiến độ
       for (const l of world.lanterns) {
         let v = lanternViews.get(l.id);
         if (!v) { v = makeLantern(); lanternViews.set(l.id, v); }
         v.g.position.set(l.pos[0], l.pos[1], l.pos[2]);
         const k = l.lit ? 1 : l.deposited / TUNING.lantern_cost; // đèn đang nạp sáng mờ dần
+        v.lamp.material.color.setHex(l.lit ? PAL.lampCore : PAL.lampOff);
         v.lamp.material.emissive.setHex(WARM);
         v.lamp.material.emissiveIntensity = l.lit ? 1.6 + 0.2 * Math.sin(t * 3 + l.pos[0]) : 0.9 * k;
         v.light.intensity = l.lit ? 110 : 0;
@@ -220,7 +242,7 @@ export function createRenderer(canvasParent) {
           v.barFill.scale.x = f;
           v.barFill.position.x = -0.8 * (1 - f);
           const low = l.fuel < 30 * 60;
-          v.barFill.material.color.setHex(low ? 0xff5a5f : WARM);
+          v.barFill.material.color.setHex(low ? PAL.danger : WARM);
           v.barFill.material.opacity = low ? (Math.floor(t * 2) % 2 ? 1 : 0.25) : 1; // nhấp nháy 1 Hz khi fuel < 30
           v.bar.quaternion.copy(camera.quaternion);
         }
@@ -244,7 +266,7 @@ export function createRenderer(canvasParent) {
       for (const m of world.motes) {
         seen.add(m.id);
         let mesh = moteViews.get(m.id);
-        if (!mesh) { mesh = new THREE.Mesh(moteGeo, moteMat); scene.add(mesh); moteViews.set(m.id, mesh); }
+        if (!mesh) { mesh = new THREE.Mesh(moteGeo, moteMat); mesh.add(new THREE.Mesh(haloGeo, haloMat)); scene.add(mesh); moteViews.set(m.id, mesh); }
         mesh.position.set(m.pos[0], 0.9 + 0.25 * Math.sin(t * 2.2 + m.pos[0]), m.pos[2]);
       }
       for (const [id, mesh] of moteViews) if (!seen.has(id)) { scene.remove(mesh); moteViews.delete(id); }
@@ -259,8 +281,8 @@ export function createRenderer(canvasParent) {
         v.g.position.set(s.pos[0], s.pos[1] + 0.1 * Math.sin(t * 4 + s.pos[0]), s.pos[2]);
         v.g.rotation.y = Math.atan2(p.pos[0] - s.pos[0], p.pos[2] - s.pos[2]);
         v.g.scale.setScalar(stunned ? 0.7 : 1);
-        v.m.material.color.setHex(stunned ? 0x6a6f9a : 0x1c0b30);
-        v.m.material.emissive.setHex(stunned ? 0x333a66 : 0x3a1266);
+        v.m.material.color.setHex(stunned ? PAL.shadeStun : PAL.shade);
+        v.m.material.emissive.setHex(stunned ? PAL.shadeStun : PAL.shadeRim);
       }
       for (const [id, v] of shadeViews) if (!seenS.has(id)) { scene.remove(v.g); shadeViews.delete(id); }
 

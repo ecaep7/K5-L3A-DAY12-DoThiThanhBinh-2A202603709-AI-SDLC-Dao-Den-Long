@@ -68,7 +68,7 @@ function frame(now) {
   if (game.mode === 'play' && world.state === 'won' && !game.scored) { game.scored = true; game.chainTotal += world.score; }
   view.sync(world, dt, input.yaw);
   if (game.mode === 'play') {
-    hud.update(world, { night: game.night, chain: game.chain, chainTotal: game.chainTotal, hasNext: game.chain && game.night < 3 });
+    hud.update(world, { night: game.night, chain: game.chain, chainTotal: game.chainTotal, hasNext: game.chain && game.night < 3, project: (pos) => view.project(pos) });
   } else {
     document.getElementById('end').style.display = 'none';
   }
