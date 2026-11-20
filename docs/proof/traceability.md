@@ -53,3 +53,21 @@ Bảng luật → test đầy đủ (15 mục, kèm tên nhóm test) ở `docs/n
 - Đột biến tay (K1): đổi tỏa sáng thành 2D, cộng điểm khi nhặt, bỏ hồi chiêu lướt, cho Bóng trong vùng an toàn gây hại, rơi tôn trọng bất tử, thắng xét trước thua, đổi thời gian recoil → **7/7 bị ít nhất 1 test bắt**.
 - `docs/proof/phase2/verify-report.md` + `night1-run1/2.jsonl`: chạy bằng skill `/verify` (tạo lại bằng lệnh, không sửa tay).
 - Chưa làm: K2–K5 (xem phase2-spec.md).
+
+## Phase 4 – Ticket-04, Contract v1.3
+| Yêu cầu | Trạng thái | Bằng chứng |
+|---|---|---|
+| Mục 1 Bench: `bench_cmd`, cảnh chuẩn, chỉ số đúng định nghĩa | Đạt (tự đo) | `bench/bench.mjs`, `web/bench.js`; `bench.json` chạy thật (avg 103.7, p1_low 30, p95 16.8 ms, load 1.7 s); công thức: `tests/bench.test.js` |
+| Bench: `peak_mem_mb` | Null có giải thích | bản web không đọc được RSS trình duyệt (trường `peak_mem_note`) |
+| Bench: tắt vsync | Một phần | cờ Chromium đã đặt; không kiểm chứng được GPU có tôn trọng không |
+| Mục 2 Soak: `soak_cmd`, crashes = 0, mem_end ≤ 1.2×mem_start | Đạt (số liệu) | `src/soak.js`, `soak.json` (46.9 → 51.6 MB, 0 crash); `tests/soak.test.js` |
+| Soak: xoay vòng Đêm 1→2→3 | **Chưa đạt** | Đêm 2/3 chưa làm; mọi Đêm chạy bản đồ Đêm 1 (ghi trong `soak.json`) |
+| Mục 3 Bảng xếp hạng, `--export-leaderboard` | **Chưa đạt** | không làm theo chỉ đạo Phase 4 (cũng cần màn Bình Minh Đêm 3) |
+| Mục 4 Accessibility | **Chưa đạt** | không làm theo chỉ đạo Phase 4 |
+| Gió Lạc, Bùa Gió | **Chưa đạt** | không làm theo chỉ đạo Phase 4 |
+| Đêm 2, Đêm 3 (R5) | **Chưa đạt** | hết thời gian; `maps.js` chỉ có Đêm 1 |
+| Mục 5 README, CHANGELOG 4 phase, CREDITS, LICENSE, bản web tĩnh .zip | Đạt (zip ở `release/`, không commit) | `README.md`, `CHANGELOG.md`, `CREDITS.md`, `LICENSE` |
+| Mục 6 Contract v1.3 (`bench_cmd`, `soak_cmd`) | Đạt | `game.contract.json`; `tests/contract.test.js` |
+| Mục 7 Retro, video demo, GitHub Release v1.0.0, tag `phase-4` | **Chưa đạt** | tác giả tự làm |
+
+`npm test`: 174 test, 0 đỏ (Phase 3 có 168; thêm 3 soak, 3 bench).
