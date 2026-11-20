@@ -1,10 +1,10 @@
-import { TUNING, timeLeft } from '../src/sim/index.js';
+import { capacityOf, timeLeft } from '../src/sim/index.js';
 
 const $ = (id) => document.getElementById(id);
 const REASON = {
-  all_lit: 'Cả năm ngọn đèn đã sáng. Đảo Bến lại ấm áp!',
+  dawn_survived: 'Đảo vẫn sáng khi bình minh tới. Đảo Bến lại ấm áp!',
   no_flames: 'Ngọn lửa của Mây đã tắt hết…',
-  dawn: 'Trời sáng mà đèn chưa thắp đủ.',
+  dawn: 'Bình minh tới mà số đèn sáng chưa đủ.',
 };
 let toastTimer = 0;
 
@@ -37,7 +37,7 @@ export function createHud(onRestart) {
     update(world) {
       const p = world.player;
       $('flames').textContent = '🔥'.repeat(Math.max(0, p.flames)) || '–';
-      $('carried').textContent = `${p.carried}/${TUNING.carry_capacity}`;
+      $('carried').textContent = `${p.carried}/${capacityOf(p)}`;
       $('lit').textContent = `${world.lanterns.filter((l) => l.lit).length}/${world.lanterns.length}`;
       const t = Math.ceil(timeLeft(world));
       $('time').textContent = `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
@@ -46,7 +46,7 @@ export function createHud(onRestart) {
       $('end').style.display = over ? 'flex' : 'none';
       if (over) {
         $('end-title').textContent = world.state === 'won' ? 'Thắng rồi!' : 'Thua rồi';
-        const reason = world.state === 'won' ? REASON.all_lit : (p.flames <= 0 ? REASON.no_flames : REASON.dawn);
+        const reason = world.state === 'won' ? REASON.dawn_survived : (p.flames <= 0 ? REASON.no_flames : REASON.dawn);
         $('end-detail').textContent = `${reason} Điểm: ${world.score}`;
       }
     },

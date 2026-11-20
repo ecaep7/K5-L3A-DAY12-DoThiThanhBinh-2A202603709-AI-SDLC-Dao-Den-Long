@@ -15,7 +15,7 @@ export function validateScenario(s) {
   if ('player' in s) {
     need(isObj(s.player), 'player phải là đối tượng');
     if ('pos' in s.player) need(isVec3(s.player.pos), 'player.pos phải là [x, y, z]');
-    for (const k of ['carried', 'flames', 'invuln_ticks', 'dash_cd_ticks', 'pulse_cd_ticks', 'charm_ticks']) {
+    for (const k of ['carried', 'flames', 'invuln_ticks', 'dash_cd_ticks', 'pulse_cd_ticks', 'charm_ticks', 'successful_lights']) {
       if (k in s.player) need(Number.isInteger(s.player[k]) && s.player[k] >= 0, `player.${k} phải là số nguyên >= 0`);
     }
   }
@@ -32,6 +32,7 @@ export function validateScenario(s) {
       need(isObj(m) && isVec3(m.pos), `shades[${i}].pos phải là [x,y,z]`);
       if ('id' in m) need(typeof m.id === 'string' && m.id.length > 0, `shades[${i}].id phải là chuỗi`);
       if ('state' in m) need(SHADE_STATES.includes(m.state), `shades[${i}].state phải thuộc ${SHADE_STATES.join('|')}`);
+      if ('target_lantern_id' in m) need(typeof m.target_lantern_id === 'string', `shades[${i}].target_lantern_id phải là chuỗi`);
       if ('state_ticks_left' in m) need(Number.isInteger(m.state_ticks_left) && m.state_ticks_left >= 0, `shades[${i}].state_ticks_left phải là số nguyên >= 0`);
     });
   }
@@ -44,6 +45,8 @@ export function validateScenario(s) {
       need(isObj(l) && typeof l.id === 'string', `lanterns[${i}].id phải là chuỗi`);
       if ('pos' in l) need(isVec3(l.pos), `lanterns[${i}].pos phải là [x,y,z]`);
       if ('lit' in l) need(typeof l.lit === 'boolean', `lanterns[${i}].lit phải là boolean`);
+      if ('fuel' in l) need(isNum(l.fuel) && l.fuel >= 0 && l.fuel <= 100, `lanterns[${i}].fuel phải là số trong [0, 100]`);
+      if ('ever_lit' in l) need(typeof l.ever_lit === 'boolean', `lanterns[${i}].ever_lit phải là boolean`);
       if ('deposited' in l) need(Number.isInteger(l.deposited) && l.deposited >= 0, `lanterns[${i}].deposited phải là số nguyên >= 0`);
     });
   }

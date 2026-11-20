@@ -1,4 +1,4 @@
-import { timeLeft } from './world.js';
+import { timeLeft, capacityOf, fuelOut } from './world.js';
 import { WORLD } from './tuning.js';
 
 // Làm tròn 3 chữ số thập phân, tránh -0.
@@ -23,9 +23,9 @@ export function snapshotLine(world) {
     player: {
       pos: pos3(p.pos), vel: pos3(p.vel), grounded: p.grounded, invuln: p.invuln > 0,
       dash_cd_s: secs(p.dashCd), pulse_cd_s: secs(p.pulseCd), charm_s: secs(p.charm),
-      flames: p.flames, carried: p.carried,
+      flames: p.flames, carried: p.carried, capacity: capacityOf(p),
     },
-    lanterns: world.lanterns.map((l) => ({ id: l.id, pos: pos3(l.pos), lit: l.lit, deposited: l.deposited })),
+    lanterns: world.lanterns.map((l) => ({ id: l.id, pos: pos3(l.pos), lit: l.lit, deposited: l.deposited, fuel: l.lit ? fuelOut(l) : 0, ever_lit: l.everLit, relit_count: l.relitCount })),
     shades: world.shades.map((s) => ({ id: s.id, pos: pos3(s.pos), state: s.state })),
     motes_active: world.motes.length,
     motes: world.motes.map((m) => ({ id: m.id, pos: pos3(m.pos), kind: m.kind, ttl_s: m.ttl === null ? null : secs(m.ttl) })),

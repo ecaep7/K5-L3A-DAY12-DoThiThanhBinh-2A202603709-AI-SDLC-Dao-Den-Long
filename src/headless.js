@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// CLI headless theo Test Contract v1.1.
+// CLI headless theo Test Contract v1.2.
 // node src/headless.js --seed <int> --night 1 [--scenario f.json] [--inputs f.json]
 //                      --ticks <int> --out <f.jsonl> [--snapshot-every <int>=10]
 import fs from 'node:fs';

@@ -9,22 +9,25 @@ import { TUNING, mulberry32 } from '../src/sim/index.js';
 describe('game.contract.json', () => {
   const c = JSON.parse(fs.readFileSync(path.join(ROOT, 'game.contract.json'), 'utf8'));
   test('trường bắt buộc', () => {
-    assert.equal(c.contract_version, '1.1');
+    assert.equal(c.contract_version, '1.2');
     for (const k of ['team', 'build_cmd', 'run_cmd', 'headless_cmd']) assert.ok(typeof c[k] === 'string' && c[k]);
   });
   test('tuning khớp src/sim/tuning.js (từng khóa)', () => {
     assert.deepEqual(c.tuning, JSON.parse(JSON.stringify(TUNING)));
   });
-  test('tuning đúng số chuẩn Ticket-02 (viết tay từ ticket, không chép từ code)', () => {
+  test('tuning đúng số chuẩn Ticket-02 + Ticket-03 (viết tay từ ticket, không chép từ code)', () => {
     const t = c.tuning;
     assert.deepEqual(
       [t.player_speed, t.carry_capacity, t.lantern_cost, t.pickup_radius, t.interact_radius, t.pulse_cost, t.pulse_radius,
         t.pulse_cooldown_s, t.pulse_stun_s, t.pulse_push_m, t.safe_radius, t.shade_speed, t.shade_hit_radius, t.flames,
         t.invuln_s, t.hit_drop_ratio, t.dash_speed, t.dash_duration_s, t.dash_cooldown_s,
-        t.night1_duration_s, t.night2_duration_s, t.night3_duration_s, t.fall_enabled],
-      [6, 10, 10, 1, 2, 3, 5, 3, 2, 4, 6, 4, 1, 3, 1.5, 0.5, 14, 0.2, 1.5, 300, 330, 360, true],
+        t.night1_duration_s, t.night2_duration_s, t.night3_duration_s, t.fall_enabled,
+        t.fuel_max, t.fuel_decay_per_s, t.fuel_per_mote, t.relight_cost, t.win_ratio, t.drain_per_s, t.low_fuel_threshold, t.capacity_max],
+      [6, 10, 10, 1, 2, 3, 5, 3, 2, 4, 6, 4, 1, 3, 1.5, 0.5, 14, 0.2, 1.5, 240, 270, 300, true,
+        100, 1.0, 10, 5, 0.6, 5, 30, 20],
     );
-    assert.deepEqual(t.score, { per_mote: 10, per_lantern: 100, per_stun: 5, per_second_left: 2, per_flame_left: 50 });
+    // điểm Ticket-03 Phần 5 (thưởng thời gian bỏ → không còn per_second_left)
+    assert.deepEqual(t.score, { per_mote: 5, per_lantern: 100, per_relight: 40, per_stun: 5, per_stun_drain: 15, per_lit_at_dawn: 50, per_flame_left: 50 });
   });
   test('tuning khớp bảng trong assumptions.md', () => {
     const md = fs.readFileSync(path.join(ROOT, 'docs', 'notes', 'assumptions.md'), 'utf8');
@@ -53,7 +56,7 @@ describe('PRNG', () => {
 describe('thế giới mặc định (Đêm 1)', () => {
   const r = run({ seed: 3, ticks: 0 });
   const s = r.snapAt(0);
-  test('người chơi ở (0,0,0), 3 flames, 5 đèn, 20 đom đóm, chưa có Bóng Mực, 300 s', () => {
+  test('người chơi ở (0,0,0), 3 flames, 5 đèn, 20 đom đóm, chưa có Bóng Mực, 240 s, sức chứa 10', () => {
     assert.equal(s.player.flames, 3);
     assert.equal(s.player.carried, 0);
     assert.deepEqual(s.player.pos, [0, 0, 0]);
@@ -63,7 +66,8 @@ describe('thế giới mặc định (Đêm 1)', () => {
     assert.equal(s.lanterns.length, 5);
     assert.equal(s.motes_active, 20);
     assert.deepEqual(s.shades, []);
-    assert.equal(s.time_left_s, 300);
+    assert.equal(s.time_left_s, 240);
+    assert.equal(s.player.capacity, 10);
     assert.equal(s.state, 'playing');
     assert.equal(s.night, 1);
     assert.deepEqual(s.wind, { active: false, dir_deg: 0 });
@@ -73,7 +77,7 @@ describe('thế giới mặc định (Đêm 1)', () => {
   test('5 đèn đúng tọa độ chuẩn của ticket', () => {
     assert.deepEqual(s.lanterns.map((l) => l.pos),
       [[0, 0, 25], [23.8, 0, 7.7], [14.7, 0, -20.2], [-14.7, 0, -20.2], [-23.8, 0, 7.7]]);
-    assert.ok(s.lanterns.every((l) => l.lit === false && l.deposited === 0));
+    assert.ok(s.lanterns.every((l) => l.lit === false && l.deposited === 0 && l.fuel === 0 && l.ever_lit === false && l.relit_count === 0));
   });
   test('20 đom đóm ở 20 điểm khác nhau thuộc 8 điểm r=12 (mỗi 45°) ∪ 16 điểm r=33 (mỗi 22.5°)', () => {
     const pts = [];

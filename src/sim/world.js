@@ -1,4 +1,4 @@
-import { TUNING, WORLD } from './tuning.js';
+import { TUNING, WORLD, FUEL } from './tuning.js';
 import { mulberry32 } from './rng.js';
 import { within } from './vec.js';
 import { FormatError } from './errors.js';
@@ -6,12 +6,22 @@ import { validateScenario } from './scenario.js';
 import { getMap } from './maps.js';
 
 export function makeLanterns(map) {
-  return map.lanterns.map((pos, i) => ({ id: `L${i + 1}`, pos: [...pos], lit: false, deposited: 0 }));
+  return map.lanterns.map((pos, i) => ({ id: `L${i + 1}`, pos: [...pos], lit: false, deposited: 0, fuel: 0, everLit: false, relitCount: 0 }));
 }
 
+// Đèn có vùng an toàn khi đang sáng và fuel >= 30 (đúng 30 vẫn còn; so sánh trên đơn vị nguyên 1/60).
+export const hasZone = (l) => l.lit && l.fuel >= FUEL.low;
+
 export function inSafeZone(world, pos) {
-  return world.lanterns.some((l) => l.lit && within(pos, l.pos, TUNING.safe_radius));
+  return world.lanterns.some((l) => hasZone(l) && within(pos, l.pos, TUNING.safe_radius));
 }
+
+export const capacityOf = (player) => Math.min(TUNING.capacity_max, TUNING.carry_capacity + WORLD.capacity_step * player.successfulLights);
+
+// Dầu xuất ra: 1 chữ số thập phân.
+export const fuelOut = (l) => Math.round((l.fuel / FUEL.unit) * 10) / 10;
+
+export const winNeed = (n) => Math.ceil((n * Math.round(TUNING.win_ratio * 10)) / 10);
 
 export function nextShadeId(world) {
   const used = new Set(world.shades.map((s) => s.id));
@@ -73,6 +83,7 @@ export function createWorld(seed, scenario = null, night = 1) {
     dashLeft: 0,
     dashDir: [0, 1],
     fallWait: 0, // > 0: đang chờ hồi sinh sau khi rơi
+    successfulLights: 0,
   };
   const sp = sc.player ?? {};
   if (sp.pos) player.pos = [...sp.pos];
@@ -82,6 +93,7 @@ export function createWorld(seed, scenario = null, night = 1) {
   if ('dash_cd_ticks' in sp) player.dashCd = sp.dash_cd_ticks;
   if ('pulse_cd_ticks' in sp) player.pulseCd = sp.pulse_cd_ticks;
   if ('charm_ticks' in sp) player.charm = sp.charm_ticks;
+  if ('successful_lights' in sp) player.successfulLights = sp.successful_lights;
   player.grounded = player.pos[1] === 0 && Math.hypot(player.pos[0], player.pos[2]) <= map.islandRadius;
 
   const lanterns = makeLanterns(map);
@@ -90,6 +102,9 @@ export function createWorld(seed, scenario = null, night = 1) {
     if (!l) throw new FormatError(`scenario: lanterns có id không tồn tại: ${u.id}`);
     if (u.pos) l.pos = [...u.pos];
     if ('lit' in u) l.lit = u.lit;
+    if (l.lit) l.fuel = 'fuel' in u ? Math.round(u.fuel * FUEL.unit) : FUEL.max; // lit:true không có fuel → 100
+    l.everLit = 'ever_lit' in u ? u.ever_lit : l.lit;
+    if (l.lit) l.everLit = true;
     if ('deposited' in u) l.deposited = u.deposited;
   }
 
@@ -135,6 +150,7 @@ export function createWorld(seed, scenario = null, night = 1) {
     world.shades.push({
       id: s.id ?? `S${i + 1}`, pos: [...s.pos], state, left: s.state_ticks_left ?? defLeft,
       push: null, recoilDir: null, wanderTo: null, wanderLeft: 0,
+      target: s.target_lantern_id ?? null, drainTicks: 0,
     });
   });
   return world;

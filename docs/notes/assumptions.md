@@ -34,12 +34,16 @@ Phần dưới "Thay đổi Phase 2" mô tả luật hiện hành; các mục c�
 | pickup_radius | 1 | shade_speed | 4 |
 | interact_radius | 2 | shade_hit_radius | 1 |
 | pulse_cost | 3 | fall_enabled | true |
-| pulse_radius | 5 | night1_duration_s | 300 |
-| flames | 3 | night2_duration_s | 330 |
-| invuln_s | 1.5 | night3_duration_s | 360 |
+| pulse_radius | 5 | night1_duration_s | 240 |
+| flames | 3 | night2_duration_s | 270 |
+| invuln_s | 1.5 | night3_duration_s | 300 |
 | hit_drop_ratio | 0.5 | dash_speed | 14 |
 | dash_duration_s | 0.2 | dash_cooldown_s | 1.5 |
-| score.per_mote 10 · per_lantern 100 · per_stun 5 · per_second_left 2 · per_flame_left 50 | | | |
+| fuel_max | 100 | fuel_decay_per_s | 1 |
+| fuel_per_mote | 10 | relight_cost | 5 |
+| win_ratio | 0.6 | drain_per_s | 5 |
+| low_fuel_threshold | 30 | capacity_max | 20 |
+| score.per_mote 5 · per_lantern 100 · per_relight 40 · per_stun 5 · per_stun_drain 15 · per_lit_at_dawn 50 · per_flame_left 50 | | | |
 
 ## Quyết định bổ sung khi cài đặt (PRD-0 còn mơ hồ)
 1. **Thứ tự trong 1 bước (tick k→k+1):** áp input → di chuyển/nhảy/chặn mép → giảm timer → nhặt đom đóm → interact (nạp đèn) → pulse → Bóng Mực (di chuyển, rồi spawn) → bị chạm → kết thúc. Kết thúc xét theo thứ tự: thắng (`all_lit`) → `no_flames` → `dawn` (tick ≥ thời lượng × 60).
